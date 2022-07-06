@@ -1,0 +1,6 @@
+Memo.txt
+*.o
+*~
+berlekamp
+make.date
+gmon.out

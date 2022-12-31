@@ -125,7 +125,7 @@ static void wait(void)
 
     //// ここで fgets() がエラーになることで、全体の動作がとまらないと思われる
     if ((result = fgets(line, LINESIZE, stdin)) != NULL)
-        printf("The string is %s¥n", result);
+        printf("The string is %s\n", result);
 }
 
 // OP型を正規化する
@@ -1390,8 +1390,9 @@ int main(void)
     for (i = 0; i < G_N; i++)
         if (zz[i] > 0)
             printf("err=%d\n", i);
-
     wait();
+    exit(1);
+
     // debugging
     O = mk_pub(); // 鍵サイズ(K/2 Reed-Solomon)
     memset(zz, 0, sizeof(zz));

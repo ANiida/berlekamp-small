@@ -625,56 +625,7 @@ static vec chen(OP f)
 
     return e;
 }
-/*
-// GF(2^m) then set m in this function.
-static int ben_or(OP f)
-{
-    int i, n, flg = 0;
-    OP s = {0}, u = {0}, r = {0};
-    vec v = {0};
-    // if GF(8192) is 2^m and m==13 or if GF(4096) and m==12 if GF(16384) is testing
-    int m = G_E;
-    // m=12 as a for GF(4096)=2^12 defined @ gloal.h or here,for example m=4 and GF(16)
 
-    v.x[1] = 1;
-    s = v2o(v);
-    r = s;
-    n = deg(o2v(f));
-    printf("n=%d\n", n);
-
-    if (n == 0)
-        return -1;
-
-    // r(x)^{q^i} square pow mod
-    i = 0;
-    while (i < n / 2) {
-        printf("iii=%d\n", i);
-        flg = 1;
-        // irreducible over GH(8192) 2^13
-        r = opowmod(r, f, m);
-
-        // irreducible over GF2  // r=omod(opow(r,2),f);
-        u = oadd(r, s);
-        if (deg(o2v(u)) == 0 && LT(u).a == 0)
-            return -1;
-
-        if (deg(o2v(u)) == 0 && LT(u).a == 1) {
-            i++;
-            flg = 0;
-        }
-        if (deg(o2v(u)) > 0)
-            u = gcd(f, u);
-
-        if (deg(o2v(u)) > 0)
-            return -1;
-
-        if (flg == 1)
-            i++;
-    }
-
-    return 0;
-}
-*/
 // 配列の値を係数として多項式に設定する
 static OP setpol(unsigned short f[], int n)
 {

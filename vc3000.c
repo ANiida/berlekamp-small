@@ -25,7 +25,7 @@
 // #include "1024.h"
 #include "gf.h"
 // #include "2048.h"
-//#include "8192.h"
+// #include "8192.h"
 // #include "512.h"
 #include "global.h"
 #include "struct.h"
@@ -208,19 +208,18 @@ void GF_mul(unsigned short *out, unsigned short *in0, unsigned short *in1)
         prod[i - K + 2] ^= prod[i];
         prod[i - K + 0] ^= prod[i];
       */
-/*
-    // GF(2^256) from sage
-    prod[i - G_K + 10] ^= prod[i];
-    prod[i - G_K + 5] ^= prod[i];
-    prod[i - G_K + 2] ^= prod[i];
-    prod[i - G_K + 0] ^= prod[i];
-*/
-// GF(2^16) from sage
+    /*
+        // GF(2^256) from sage
+        prod[i - G_K + 10] ^= prod[i];
+        prod[i - G_K + 5] ^= prod[i];
+        prod[i - G_K + 2] ^= prod[i];
+        prod[i - G_K + 0] ^= prod[i];
+    */
+    // GF(2^16) from sage
     prod[i - G_K + 5] ^= prod[i];
     prod[i - G_K + 3] ^= prod[i];
     prod[i - G_K + 2] ^= prod[i];
     prod[i - G_K + 0] ^= prod[i];
-
 
     /*
        //128
@@ -1499,7 +1498,7 @@ ginit(unsigned short *g)
 
   // printf("in ginit\n");
 
-  g[G_K] = 1;          // xor128();
+  g[G_K] = 1;        // xor128();
   g[0] = rand() % 2; // or N
   k = rand() % 2;    //(K - 1);
   if (k > 0)

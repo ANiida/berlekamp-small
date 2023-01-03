@@ -33,7 +33,7 @@
 #include <execinfo.h>
 
 #include <omp.h>
-//#include "4096.h"
+// #include "4096.h"
 #include "global.h"
 #include "struct.h"
 #include "gf.h"
@@ -44,14 +44,14 @@ extern int mlt(int x, int y);
 extern int mltn(int n, int a);
 
 extern MTX inv_S;
-extern MTX norm_S;       /// extern MTX S;
+extern MTX norm_S; /// extern MTX S;
 extern MTX mulmat(MTX A, MTX B, int i);
 
 void print_trace(void);
 void random_shuffle(unsigned short *array, size_t size);
 int mkRS(MTX cc, MTX *R);
 int is_reg(MTX cc, MTX *R);
-unsigned short merge_rand(unsigned short *a, int n);  /// in fy.c
+unsigned short merge_rand(unsigned short *a, int n); /// in fy.c
 
 /* Goppa多項式 */
 static unsigned short g[G_K + 1] = {0}; /// ginit(), ogt(), mkpol(), mkd()
@@ -60,18 +60,19 @@ static unsigned short g[G_K + 1] = {0}; /// ginit(), ogt(), mkpol(), mkd()
 //// static unsigned int B = 0;  削除
 //// static MTX H = {0}; ==> pk_gen() 内に移動
 
-//有限体の元の逆数
+// 有限体の元の逆数
 static unsigned short oinv(unsigned short a)
 {
     if (a == 0)
         return 0;
 
-    for (unsigned short i = 0; i < G_N; i++) {
+    for (unsigned short i = 0; i < G_N; i++)
+    {
         if (gf[mlt(fg[a], i)] == 1)
             return i;
     }
     printf("no return \n");
-    return 0;    //  exit (1);
+    return 0; //  exit (1);
 }
 
 // aに何をかけたらbになるか
@@ -79,7 +80,8 @@ static unsigned short equ(unsigned short a, unsigned short b)
 {
     int i;
 
-    for (i = 0; i < G_N; i++) {
+    for (i = 0; i < G_N; i++)
+    {
         if (gf[mlt(fg[a], fg[i])] == b)
             break;
     }
@@ -91,21 +93,24 @@ static vec o2v(OP f)
 {
     vec a = {0};
 
-    for (int i = 0; i < G_DEG; i++) {
+    for (int i = 0; i < G_DEG; i++)
+    {
         if (f.t[i].a > 0 && f.t[i].n < G_DEG)
             a.x[f.t[i].n] = f.t[i].a;
     }
     return a;
 }
 
-//ベクトル型からOP型への変換
+// ベクトル型からOP型への変換
 static OP v2o(vec a)
 {
     OP f = {0};
     int j = 0;
 
-    for (int i = 0; i < G_DEG; i++) {
-        if (a.x[i] > 0) {
+    for (int i = 0; i < G_DEG; i++)
+    {
+        if (a.x[i] > 0)
+        {
             f.t[j].n = i;
             f.t[j++].a = a.x[i];
         }
@@ -113,15 +118,16 @@ static OP v2o(vec a)
     return f;
 }
 
-//停止コマンド
-#define LINESIZE 1    //// <= ヘン！　sizeof(line) ???
+// 停止コマンド
+#define LINESIZE 1 //// <= ヘン！　sizeof(line) ???
 static void wait(void)
 {
     char line[30];
     char *result;
 
     // 何か表示させたほうが良いだろう
-    printf(" (enter number and hit return) ");  fflush(stdout);
+    printf(" (enter number and hit return) ");
+    fflush(stdout);
 
     //// ここで fgets() がエラーになることで、全体の動作がとまらないと思われる
     if ((result = fgets(line, LINESIZE, stdin)) != NULL)
@@ -132,26 +138,28 @@ static void wait(void)
 static OP conv(OP f)
 {
     vec v = o2v(f);
-    OP  g = v2o(v);
+    OP g = v2o(v);
     return g;
 }
 
-//多項式の次数(default)
+// 多項式の次数(default)
 static int deg(vec a)
 {
     int n = 0;
     bool flg = false;
 
-    for (int i = 0; i < G_DEG; i++) {
-        if (a.x[i] > 0) {
+    for (int i = 0; i < G_DEG; i++)
+    {
+        if (a.x[i] > 0)
+        {
             n = i;
             flg = true;
         }
     }
-    return flg ? n : 0;   //// return n; ????
+    return flg ? n : 0; //// return n; ????
 }
 
-//項の数
+// 項の数
 static int terms(OP f)
 {
     int count = 0;
@@ -162,21 +170,22 @@ static int terms(OP f)
     return count;
 }
 
-//多項式の次数(degのOP型)
+// 多項式の次数(degのOP型)
 static int odeg(OP f)
 {
     if (f.t[0].a == 0)
         return 0;
 
     int j = 0;
-    for (int i = 0; i < G_DEG; i++) {
+    for (int i = 0; i < G_DEG; i++)
+    {
         if (j < f.t[i].n && f.t[i].a > 0)
             j = f.t[i].n;
     }
     return j;
 }
 
-//多項式を表示する（OP型）
+// 多項式を表示する（OP型）
 static void oprintpol(OP f)
 {
     int n;
@@ -187,7 +196,8 @@ static void oprintpol(OP f)
     printf("terms=%d\n", terms(f));
     printf("deg=%d\n", odeg(f));
 
-    for (int i = n; i > -1; i--) {
+    for (int i = n; i > -1; i--)
+    {
         if (f.t[i].a > 0)
             printf("%ux^%u+", f.t[i].a, f.t[i].n);
     }
@@ -196,7 +206,8 @@ static void oprintpol(OP f)
 static void op_print_raw(const OP f)
 {
     puts("op_print_raw:");
-    for (int i = 0; i < G_DEG; i++) {
+    for (int i = 0; i < G_DEG; i++)
+    {
         if (f.t[i].a > 0)
             printf("[%d] %ux^%u\n", i, f.t[i].a, f.t[i].n);
     }
@@ -206,19 +217,23 @@ static bool op_verify(const OP f)
 {
     bool end = false;
     unsigned short n_max = 0;
-    for (int i = 0; i < G_DEG; i++) {
-        if (end && (f.t[i].n != 0 || f.t[i].a != 0)) {
+    for (int i = 0; i < G_DEG; i++)
+    {
+        if (end && (f.t[i].n != 0 || f.t[i].a != 0))
+        {
             op_print_raw(f);
             printf("found data after end: i=%d\n", i);
             print_trace();
             fflush(stdout);
             return false;
         }
-        if (f.t[i].a == 0) {
+        if (f.t[i].a == 0)
+        {
             end = true;
             continue;
         }
-        if (f.t[i].n + 1 <= n_max) {
+        if (f.t[i].n + 1 <= n_max)
+        {
             op_print_raw(f);
             printf("found invalid order: i=%d\n", i);
             print_trace();
@@ -246,7 +261,8 @@ static OP oadd(OP f, OP g)
     vec b = o2v(g);
     vec c = {0};
 
-    for (int i = 0; i < G_DEG; i++) {
+    for (int i = 0; i < G_DEG; i++)
+    {
         c.x[i] = a.x[i] ^ b.x[i];
     }
     OP h = v2o(c);
@@ -261,7 +277,8 @@ static OP oterml(OP f, oterm t)
     assert(op_verify(f));
 
     OP h = {0};
-    for (int i = 0; i < G_DEG; i++) {
+    for (int i = 0; i < G_DEG; i++)
+    {
         h.t[i].n = f.t[i].n + t.n;
         h.t[i].a = gf[mlt(fg[f.t[i].a], fg[t.a])];
     }
@@ -271,7 +288,7 @@ static OP oterml(OP f, oterm t)
     return h;
 }
 
-//多項式の掛け算
+// 多項式の掛け算
 static OP omul(OP f, OP g)
 {
     f = conv(f);
@@ -281,12 +298,14 @@ static OP omul(OP f, OP g)
 
     int k = odeg(f);
     int l = odeg(g);
-    if (k < l) {
+    if (k < l)
+    {
         k = l;
     }
 
     OP h = {0};
-    for (int i = 0; i <= k; i++) {
+    for (int i = 0; i <= k; i++)
+    {
         oterm t = g.t[i];
         OP e = oterml(f, t);
         h = oadd(h, e);
@@ -295,13 +314,15 @@ static OP omul(OP f, OP g)
     return h;
 }
 
-//リーディグタームを抽出(default)
-static oterm LT(OP f)          //// leadingTerm() ???
+// リーディグタームを抽出(default)
+static oterm LT(OP f) //// leadingTerm() ???
 {
     oterm t = {0};
 
-    for (int i = 0; i < G_DEG; i++)   {
-        if (f.t[i].a > 0)        {
+    for (int i = 0; i < G_DEG; i++)
+    {
+        if (f.t[i].a > 0)
+        {
             t.n = f.t[i].n;
             t.a = f.t[i].a;
         }
@@ -309,7 +330,7 @@ static oterm LT(OP f)          //// leadingTerm() ???
     return t;
 }
 
-//多項式を単行式で割る
+// 多項式を単行式で割る
 static oterm LTdiv(OP f, oterm t)
 {
     oterm tt, s = {0};
@@ -340,13 +361,15 @@ static oterm LTdiv(OP f, oterm t)
     return s;
 }
 
-//多項式を表示する(default)
+// 多項式を表示する(default)
 static void printpol(vec a)
 {
     int n = deg(a);
     assert(n >= 0);
-    for (int i = n; i > -1; i--) {
-        if (a.x[i] > 0) {
+    for (int i = n; i > -1; i--)
+    {
+        if (a.x[i] > 0)
+        {
             // if(a.x[i]>1)
             printf("%u*", a.x[i]);
             if (i > 0)
@@ -358,7 +381,7 @@ static void printpol(vec a)
     }
 }
 
-//多項式の剰余を取る
+// 多項式の剰余を取る
 static OP omod(OP f, OP g)
 {
     int n = LT(g).n;
@@ -368,7 +391,8 @@ static OP omod(OP f, OP g)
 
     oterm b = LT(g);
     assert(b.a != 0 && b.n != 0);
-    while (LT(f).n > 0 && LT(g).n > 0)    {
+    while (LT(f).n > 0 && LT(g).n > 0)
+    {
         oterm c = LTdiv(f, b);
         OP h = oterml(g, c);
         f = oadd(f, h);
@@ -381,7 +405,7 @@ static OP omod(OP f, OP g)
     return f;
 }
 
-//多項式のべき乗余
+// 多項式のべき乗余
 static OP opowmod(OP f, OP mod, int n)
 {
     // printpol(o2v(mod));
@@ -393,13 +417,14 @@ static OP opowmod(OP f, OP mod, int n)
     return f;
 }
 
-//多項式の代入値
+// 多項式の代入値
 static unsigned short trace(OP f, unsigned short x)
 {
     unsigned short u = 0;
     int d = deg(o2v(f));
 
-    for (int i = 0; i < d + 1; i++) {
+    for (int i = 0; i < d + 1; i++)
+    {
         u ^= gf[mlt(fg[f.t[i].a], mltn(f.t[i].n, fg[x]))];
     }
     return u;
@@ -410,8 +435,10 @@ static unsigned short v2a(oterm a)
     if (a.a == 0)
         return 0;
 
-    for (int j = 0; j < G_M; j++)    {
-        if (gf[j] == a.a && a.a > 0)  {
+    for (int j = 0; j < G_M; j++)
+    {
+        if (gf[j] == a.a && a.a > 0)
+        {
             return j - 1;
         }
     }
@@ -421,8 +448,10 @@ static unsigned short v2a(oterm a)
 static void printsage(vec a)
 {
     printf("poly=");
-    for (int i = 0; i < G_DEG; i++)    {
-        if (a.x[i] > 0)        {
+    for (int i = 0; i < G_DEG; i++)
+    {
+        if (a.x[i] > 0)
+        {
             oterm b;
 
             b.a = a.x[i];
@@ -441,20 +470,23 @@ static OP gcd(OP a, OP b)
     h.t[0].a = 1;
     h.t[0].n = 0;
 
-    if (odeg(a) < odeg(b))    {
+    if (odeg(a) < odeg(b))
+    {
         OP tmp = a;
         a = b;
         b = tmp;
     }
     /* 自然数 a > b を確認・入替 */
-    if (odeg(a) < odeg(b))    {
+    if (odeg(a) < odeg(b))
+    {
         OP tmp = a;
         a = b;
         b = tmp;
     }
 
     r = omod(a, b);
-    while (odeg(r) > 0)    {
+    while (odeg(r) > 0)
+    {
         a = b;
         b = r;
         r = omod(a, b);
@@ -496,7 +528,7 @@ static OP kof(unsigned short c, OP f)
     return g;
 }
 
-//ランダム多項式の生成
+// ランダム多項式の生成
 static void ginit(void)
 {
     int j, count = 0, k;
@@ -504,16 +536,19 @@ static void ginit(void)
 
     printf("in ginit\n");
 
-    memset(g, 0, sizeof(g));  /// mkpol() から移動
-    g[G_K] = 1; // xor128();
-    g[0] = 1; // random() % G_N; // or G_N
+    memset(g, 0, sizeof(g)); /// mkpol() から移動
+    g[G_K] = 1;              // xor128();
+    g[0] = 1;                // random() % G_N; // or G_N
 
     k = random() % (G_K - 1);
-    if (k > 0) {
-        while (count < k) {
+    if (k > 0)
+    {
+        while (count < k)
+        {
             printf("in whule\n");
             j = random() % (G_K);
-            if (j < G_K && j > 0 && g[j] == 0) {
+            if (j < G_K && j > 0 && g[j] == 0)
+            {
                 g[j] = random() % G_M;
                 count++;
             }
@@ -521,37 +556,39 @@ static void ginit(void)
     }
 
     for (j = 0; j < G_K + 1; j++)
-        gg[j] = g[G_K - j];        /// 逆順にする？
+        gg[j] = g[G_K - j]; /// 逆順にする？
 
     memcpy(g, gg, sizeof(g));
 }
 
-//整数からベクトル型への変換
+// 整数からベクトル型への変換
 static vec i2v(unsigned int n)
 {
     vec v = {0};
     int i = 0;
 
-    while (n > 0) {
+    while (n > 0)
+    {
         v.x[i++] = n % 2;
         n = (n >> 1);
     }
     return v;
 }
 
-//ベクトル型から整数への変換
-static  unsigned int v2i(vec v)
+// ベクトル型から整数への変換
+static unsigned int v2i(vec v)
 {
     unsigned int d = 0, e = 0;
 
-    for (int i = 0; i < deg(v) + 1; i++) {
+    for (int i = 0; i < deg(v) + 1; i++)
+    {
         e = v.x[i];
         d ^= (e << i);
     }
     return d;
 }
 
-//配列からベクトル表現の多項式へ変換する
+// 配列からベクトル表現の多項式へ変換する
 static vec Setvec(int n)
 {
     vec v = {0};
@@ -569,14 +606,17 @@ static vec chen(OP f)
     int n = odeg(f);
     int count = 0;
 
-    for (int x = 0; x < G_N; x++) {
+    for (int x = 0; x < G_N; x++)
+    {
         unsigned short z = 0;
 
-        for (int i = 0; i <= n; i++) {
+        for (int i = 0; i <= n; i++)
+        {
             if (f.t[i].a > 0)
                 z ^= gf[mlt(mltn(f.t[i].n, fg[x]), fg[f.t[i].a])];
         }
-        if (z == 0) {
+        if (z == 0)
+        {
             e.x[count] = x;
             count++;
             printf("%d\n", x);
@@ -635,7 +675,7 @@ static int ben_or(OP f)
     return 0;
 }
 */
-//配列の値を係数として多項式に設定する
+// 配列の値を係数として多項式に設定する
 static OP setpol(unsigned short f[], int n)
 {
     OP g;
@@ -648,24 +688,29 @@ static OP setpol(unsigned short f[], int n)
     return g;
 }
 
-//バイナリ型パリティチェック行列を生成する
+// バイナリ型パリティチェック行列を生成する
 static MTX bdet()
 {
     MTX R = {0};
 
-    for (int i = 0; i < G_N; i++) {
-        for (int j = 0; j < G_K; j++) {
+    for (int i = 0; i < G_N; i++)
+    {
+        for (int j = 0; j < G_K; j++)
+        {
             int l = mat[i][j];
 
-            for (int k = 0; k < G_E; k++) {
+            for (int k = 0; k < G_E; k++)
+            {
                 R.x[i][j * G_E + k] = l % 2;
                 l = (l >> 1);
             }
         }
     }
 
-    for (int i = 0; i < G_N; i++) {
-        for (int j = 0; j < G_DEG; j++) {
+    for (int i = 0; i < G_N; i++)
+    {
+        for (int j = 0; j < G_DEG; j++)
+        {
             printf("%d,", R.x[i][j]);
         }
         printf("\n");
@@ -678,14 +723,17 @@ static MTX bd2()
     vec v = {0};
     MTX R = {0};
 
-    for (int i = 0; i < G_N; i++) {
-        for (int j = 0; j < G_K21; j++) {
+    for (int i = 0; i < G_N; i++)
+    {
+        for (int j = 0; j < G_K21; j++)
+        {
             int l = bm[i][j];
             printf("bm==%d %d\n", l, j);
 
             v = i2v(l);
 
-            for (int k = 0; k < G_E; k++) {
+            for (int k = 0; k < G_E; k++)
+            {
                 R.x[i][j * G_E + k] = v.x[k];
             }
         }
@@ -705,9 +753,11 @@ static MTX toByte(MTX SH, int kk)
     memset(HH, 0, sizeof(HH));
     printf("HH=");
 
-    for (i = 0; i < G_N; i++) {
+    for (i = 0; i < G_N; i++)
+    {
         printf("%d\n", i);
-        for (j = 0; j < kk; j++) {
+        for (j = 0; j < kk; j++)
+        {
             cnt = 0;
             for (k = j * G_E; k < j * G_E + G_E; k++)
                 v.x[cnt++] = SH.x[i][k];
@@ -723,7 +773,8 @@ static vec b2v(vec v)
 {
     vec x = {0}, z = {0};
 
-    for (int j = 0; j < G_K; j++) {
+    for (int j = 0; j < G_K; j++)
+    {
         int i = 0;
         for (int k = j * G_E; k < j * G_E + G_E; k++)
             x.x[i++] = v.x[k];
@@ -735,7 +786,7 @@ static vec b2v(vec v)
     return z;
 }
 
-//秘密置換を生成する
+// 秘密置換を生成する
 static void Pgen()
 {
     CNT++;
@@ -753,17 +804,20 @@ OP synd(unsigned short zz[], int kk)
 
     printf("in synd2\n");
 
-    for (int i = 0; i < kk; i++) {
+    for (int i = 0; i < kk; i++)
+    {
         syn[i] = 0;
         s = 0;
-        for (int j = 0; j < G_M; j++)  {
+        for (int j = 0; j < G_M; j++)
+        {
             s ^= gf[mlt(fg[zz[j]], fg[mat[j][i]])];
         }
         syn[i] = s;
     }
 
     f = setpol(syn, kk);
-    printpol(o2v(f));    printf(" syn=============\n");
+    printpol(o2v(f));
+    printf(" syn=============\n");
     return f;
 }
 
@@ -771,9 +825,12 @@ static vec sina(unsigned short zz[], MTX R)
 {
     vec v = {0}, z = {0};
 
-    for (int i = 0; i < G_N; i++) {
-        if (zz[i] > 0) {
-            for (int j = 0; j < G_DEG; j++) {
+    for (int i = 0; i < G_N; i++)
+    {
+        if (zz[i] > 0)
+        {
+            for (int j = 0; j < G_DEG; j++)
+            {
                 v.x[j] ^= R.x[i][j];
                 printf("%d,", R.x[i][j]);
             }
@@ -795,8 +852,10 @@ static void van(int kk)
     for (int i = 0; i < G_N; i++)
         vb[0][i] = 1;
 
-    for (int i = 1; i < kk; i++)    {
-        for (int j = 0; j < G_N; j++)        {
+    for (int i = 1; i < kk; i++)
+    {
+        for (int j = 0; j < G_N; j++)
+        {
             vb[i][j] = gf[mltn(i, fg[j])];
             printf("%d,", vb[i][j]);
         }
@@ -806,27 +865,31 @@ static void van(int kk)
 
 void ogt(unsigned short pp[], int kk)
 {
-    int i, j;                              //// ←消すな、このまま
-#pragma omp parallel for private(i, j)     //// ←消すな
+    int i, j;                          //// ←消すな、このまま
+#pragma omp parallel for private(i, j) //// ←消すな
 
-    for (i = 0; i < kk; i++) {
-        for (j = 0; j < kk - i; j++) {
+    for (i = 0; i < kk; i++)
+    {
+        for (j = 0; j < kk - i; j++)
+        {
             gt[i][j + i] = g[j];
         }
     }
-    for (i = 0; i < kk; i++) {
+    for (i = 0; i < kk; i++)
+    {
         for (j = 0; j < kk; j++)
             printf("%d,", gt[i][j]);
         printf("\n");
     }
 }
 
-static OP mkpol()     //// mkpol2() との違いは？？
+static OP mkpol() //// mkpol2() との違いは？？
 {
     int j, ii = 0;
     OP w = {0};
 
-    do {
+    do
+    {
         int k, flg;
 
         j = k = flg = 0;
@@ -834,20 +897,23 @@ static OP mkpol()     //// mkpol2() との違いは？？
         memset(w.t, 0, sizeof(w));
         ginit();
         ii++;
-        if (ii > 100) {
+        if (ii > 100)
+        {
             printf("erro=%d\n", ii);
             exit(1);
         }
 
-        for (int i = 0; i < G_K; i++) {
+        for (int i = 0; i < G_K; i++)
+        {
             if (g[G_K - 1] > 0)
                 flg = 1;
             if (i % 2 == 1 && g[i] > 0 && i < G_K)
                 k++;
         }
 
-        //偶数項だけにならないようにする
-        if ((k > 0 && flg == 0) || (k > 1 && flg == 1)) {
+        // 偶数項だけにならないようにする
+        if ((k > 0 && flg == 0) || (k > 1 && flg == 1))
+        {
             w = setpol(g, G_K + 1);
             j = 1;
         }
@@ -869,48 +935,50 @@ static OP mkd(OP w, int kk)
 
 aa:
     memset(mat, 0, sizeof(mat));
-    //既約性判定のためのBen-Orアルゴリズム。拡大体にも対応している。
-    // デフォルトでGF(8192)    //既約多項式しか使わない。
+    // 既約性判定のためのBen-Orアルゴリズム。拡大体にも対応している。
+    //  デフォルトでGF(8192)    //既約多項式しか使わない。
 
     ii = 0;
     // irreducible goppa code (既役多項式が必要なら、
     // ここのコメントを外すこと。)  ????
 
-  vec pp = {0};
-vec tt={0};
-int l = -1;
-  while (l < 0)
-  {
-    for (i = 0; i < G_K; i++)
-      pp.x[i] = rand() % G_N;
-    mykey(tt.x, pp);
-    tt.x[G_K] = 1;
-    l=ben_or(tt);
-    if (l == 0)
+    vec pp = {0};
+    vec tt = {0};
+    int l = -1;
+    while (l < 0)
     {
-      printf("\n");
-      printsage(tt);
-      printf(" ==irr\n");
-      break;
+        for (i = 0; i < G_K; i++)
+            pp.x[i] = rand() % G_N;
+        mykey(tt.x, pp);
+        tt.x[G_K] = 1;
+        l = ben_or(tt);
+        if (l == 0)
+        {
+            printf("\n");
+            printsage(tt);
+            printf(" ==irr\n");
+            break;
+        }
+        if (l == 0)
+            break;
     }
-    if(l==0)
-    break;
-  }
-  //exit(1);
+    // exit(1);
 
     memset(ta, 0, sizeof(ta));
     printpol((tt));
-    r=v2o(tt);
-    //多項式の値が0でないことを確認
-    for (i = 0; i < G_N; i++) {
+    r = v2o(tt);
+    // 多項式の値が0でないことを確認
+    for (i = 0; i < G_N; i++)
+    {
         ta[i] = trace(r, i);
-        if (ta[i] == 0) {
+        if (ta[i] == 0)
+        {
             printf("trace 0 @ %d\n", i);
             goto aa;
         }
     }
 
-    //多項式を固定したい場合コメントアウトする。
+    // 多項式を固定したい場合コメントアウトする。
     oprintpol(r);
     printf("\n");
     printsage(o2v(r));
@@ -926,8 +994,10 @@ int l = -1;
     ogt(g, kk);
 
     printf("\nすげ、オレもうイキそ・・・\n");
-    for (i = 0; i < G_N; i++) {
-        for (j = 0; j < kk; j++) {
+    for (i = 0; i < G_N; i++)
+    {
+        for (j = 0; j < kk; j++)
+        {
             mat[i][j] = vb[j][i];
         }
     }
@@ -940,7 +1010,8 @@ static void half(int kk)
     for (int i = 0; i < G_N; i++)
         bm[i][0] = mat[i][0];
 
-    for (int i = 1; i < kk; i++) {
+    for (int i = 1; i < kk; i++)
+    {
         for (int j = 0; j < G_N; j++)
             bm[j][i] = mat[j][i * 2 - 1];
     }
@@ -949,7 +1020,7 @@ static void half(int kk)
 // Niederreiter暗号の公開鍵を作る(RS)
 static MTX mk_pub()
 {
-    OP  w = mkd(w, G_K * 2);
+    OP w = mkd(w, G_K * 2);
     MTX g_bin = {0};
 
     half(G_K21);
@@ -967,10 +1038,12 @@ static MTX mk_pub()
     printf("\n");
     Pgen();
 
-    do {
-        memset( inv_S.x, 0, sizeof( inv_S.x));
+    do
+    {
+        memset(inv_S.x, 0, sizeof(inv_S.x));
         memset(norm_S.x, 0, sizeof(norm_S.x));
-        for (int i = 0; i < G_AY; i++) {
+        for (int i = 0; i < G_AY; i++)
+        {
             for (int j = 0; j < G_AY; j++)
                 norm_S.x[i][j] = xor128() % 2;
         }
@@ -978,8 +1051,10 @@ static MTX mk_pub()
 
     MTX z = mulmat(norm_S, r, 2);
     printf("Zz=\n");
-    for (int j = 0; j < G_N; j++) {
-        for (int i = 0; i < G_AY; i++) {
+    for (int j = 0; j < G_N; j++)
+    {
+        for (int i = 0; i < G_AY; i++)
+        {
             g_bin.x[j][i] = z.x[P[j]][i];
         }
     }
@@ -999,10 +1074,12 @@ static MTX pk_gen()
     printf("sagemath で既約性を検査してください！\n");
 
     Pgen();
-    do {
+    do
+    {
         memset(inv_S.x, 0, sizeof(inv_S.x));
         memset(norm_S.x, 0, sizeof(norm_S.x));
-        for (int i = 0; i < G_DEG; i++) {
+        for (int i = 0; i < G_DEG; i++)
+        {
             for (int j = 0; j < G_DEG; j++)
                 norm_S.x[i][j] = xor128() % 2;
         }
@@ -1011,8 +1088,10 @@ static MTX pk_gen()
     MTX Q = bdet();
     MTX H = mulmat(norm_S, Q, 1);
     MTX O_bin = {0};
-    for (int i = 0; i < G_DEG; i++) {
-        for (int j = 0; j < G_N; j++) {
+    for (int i = 0; i < G_DEG; i++)
+    {
+        for (int j = 0; j < G_N; j++)
+        {
             O_bin.x[j][i] = H.x[P[j]][i];
         }
     }
@@ -1021,12 +1100,13 @@ static MTX pk_gen()
 
 static OP dec(unsigned short ss[])
 {
-    unsigned int   ch[G_DEG] = {0};
+    unsigned int ch[G_DEG] = {0};
     unsigned char h2o[G_DEG] = {0};
     vec v;
 
     printf("!1\n");
-    for (int i = 0; i < G_K; i++) {
+    for (int i = 0; i < G_K; i++)
+    {
         v = i2v(ss[i]);
         for (int j = 0; j < G_E; j++)
             ch[i * G_E + j] = v.x[j];
@@ -1035,13 +1115,15 @@ static OP dec(unsigned short ss[])
         printf("%d", ch[i]);
     printf("\n");
 
-    for (int i = 0; i < G_DEG; i++) {
+    for (int i = 0; i < G_DEG; i++)
+    {
         for (int j = 0; j < G_DEG; j++)
             h2o[i] ^= (ch[j] & inv_S.x[i][j]);
     }
 
     unsigned short uk[G_K];
-    for (int i = 0; i < G_K; i++) {
+    for (int i = 0; i < G_K; i++)
+    {
         memset(v.x, 0, sizeof(v.x));
         for (int j = 0; j < G_E; j++)
             v.x[j] = h2o[i * G_E + j];
@@ -1059,16 +1141,20 @@ static int ero2(vec v)
     unsigned short ya[G_N] = {0}, xa[G_N] = {0};
     int count = 0;
 
-    for (int i = 0; i < G_T; i++) {
-        if (i == 0) {
+    for (int i = 0; i < G_T; i++)
+    {
+        if (i == 0)
+        {
             xa[v.x[i]] = 1;
             count++;
         }
-        if (i > 0 && v.x[i] > 0) {
+        if (i > 0 && v.x[i] > 0)
+        {
             xa[v.x[i]] = 1;
             count++;
         }
-        if (i > 0 && v.x[i] == 0) {
+        if (i > 0 && v.x[i] == 0)
+        {
             printf("baka %d %d\n", i, v.x[i]);
             printf("v.x[K-1]=%d\n", v.x[G_K - 1]);
             break;
@@ -1079,27 +1165,34 @@ static int ero2(vec v)
     for (int i = 0; i < G_N; i++)
         ya[i] = xa[P[i]];
 
-    for (int i = 0; i < G_N; i++)    {
-        if (ya[i] > 0 && i == 0)        {
+    for (int i = 0; i < G_N; i++)
+    {
+        if (ya[i] > 0 && i == 0)
+        {
             printf("error position=%d う\n", i);
             cnt = 1;
         }
-        else if (ya[i] > 0)        {
-            if (cnt == 0)            {
+        else if (ya[i] > 0)
+        {
+            if (cnt == 0)
+            {
                 printf("error position=%d う\n", i);
                 cnt = 1;
             }
-            else {
+            else
+            {
                 printf("error position=%d お\n", i);
             }
         }
     }
 
-    if (count == G_T) {
+    if (count == G_T)
+    {
         printf("err=%dっ!! \n", count);
         /// B++; 削除
     }
-    if (count < G_T) {
+    if (count < G_T)
+    {
         printf("error is too few\n");
         /// AA++; 削除
         printf("へげえええーっ\n");
@@ -1117,10 +1210,12 @@ static void mkerr(unsigned short *z1, int num)
 
     memset(z1, 0, sizeof(*z1));
 
-    while (j < num) {
+    while (j < num)
+    {
         l = random() % G_N;
         // printf ("l=%d\n", l);
-        if (0 == z1[l])        {
+        if (0 == z1[l])
+        {
             z1[l] = 1;
             // printf("l=%d\n", l);
             j++;
@@ -1134,20 +1229,24 @@ static vec newhalf(unsigned short e[G_K21])
     vec v = {0};
     unsigned short t[G_K] = {0};
 
-    for (i = 0; i < G_K21; i++)    {
+    for (i = 0; i < G_K21; i++)
+    {
         t[i] = e[i];
         printf("e=%d\n", e[i]);
     }
 
-    for (i = 0; i < G_K21; i++)   {
+    for (i = 0; i < G_K21; i++)
+    {
         printf("t=%d\n", t[i]);
     }
 
     v.x[0] = t[0];
     v.x[1] = t[1];
     k = 2;
-    for (i = 2; i < G_K; i++)  {
-        if (i % 2 == 1)  {
+    for (i = 2; i < G_K; i++)
+    {
+        if (i % 2 == 1)
+        {
             v.x[i] = t[k];
             k++;
         }
@@ -1161,13 +1260,15 @@ static vec newhalf(unsigned short e[G_K21])
 
 static vec bfd(unsigned short ss[])
 {
-    unsigned int   ch[G_DEG * 2] = {0};
+    unsigned int ch[G_DEG * 2] = {0};
     int count = 0;
     vec v;
 
-    for (int i = 0; i < G_K21; i++) {    // count=(K/2+1)*E-1;
+    for (int i = 0; i < G_K21; i++)
+    { // count=(K/2+1)*E-1;
         v = i2v(ss[i]);
-        for (int j = 0; j < G_E; j++) {
+        for (int j = 0; j < G_E; j++)
+        {
             ch[count] = v.x[j];
             count++;
         }
@@ -1178,7 +1279,8 @@ static vec bfd(unsigned short ss[])
     printf("\n");
 
     unsigned char h2o[G_DEG * 2] = {0};
-    for (int i = 0; i < G_AY; i++)    {
+    for (int i = 0; i < G_AY; i++)
+    {
         for (int j = 0; j < G_AY; j++)
             h2o[i] ^= (ch[j] & inv_S.x[i][j]);
     }
@@ -1190,9 +1292,11 @@ static vec bfd(unsigned short ss[])
 
     unsigned short uk[G_K] = {0};
     count = 0;
-    for (int i = 0; i < G_K21; i++) {    // count=(K/2+1)*E-1;
+    for (int i = 0; i < G_K21; i++)
+    { // count=(K/2+1)*E-1;
         memset(v.x, 0, sizeof(v.x));
-        for (int j = 0; j < G_E; j++) {
+        for (int j = 0; j < G_E; j++)
+        {
             v.x[j] = h2o[count];
             count++;
         }
@@ -1212,7 +1316,7 @@ static vec bfd(unsigned short ss[])
     return o2v(setpol(uk, G_K21));
 }
 
-/* 
+/*
  * Berlekamp-Massey Algorithm
  */
 static OP bma(unsigned short s[], int kk)
@@ -1220,10 +1324,10 @@ static OP bma(unsigned short s[], int kk)
     int j, k, ll, l;
     int d[2 * G_K + 1] = {0};
     OP lo[2 * G_K + 1] = {0};
-    OP  b[2 * G_K + 1] = {0};
-    OP  t[2 * G_K + 1] = {0};
-    OP  h = {0};
-    OP  g = {0};
+    OP b[2 * G_K + 1] = {0};
+    OP t[2 * G_K + 1] = {0};
+    OP h = {0};
+    OP g = {0};
     vec v = {0};
     vec x = {0};
 
@@ -1234,36 +1338,45 @@ static OP bma(unsigned short s[], int kk)
     lo[0] = v2o(v);
     b[0] = lo[0];
     ll = 0;
-    for (j = 1; j < G_T * 2 + 1; j++) {
+    for (j = 1; j < G_T * 2 + 1; j++)
+    {
         v = o2v(lo[j - 1]);
         k = 0;
 
         l = deg(o2v(lo[j - 1]));
-        for (int i = 1; i < l + 1; i++) {
+        for (int i = 1; i < l + 1; i++)
+        {
             k ^= gf[mlt(fg[v.x[i]], fg[s[j - i]])];
         }
         d[j] = s[j] ^ k;
 
-        if (d[j] == 0) {
+        if (d[j] == 0)
+        {
             lo[j] = lo[j - 1];
             b[j] = omul(b[j - 1], h);
-        } else  {
+        }
+        else
+        {
             g = omul(kof(d[j], h), b[j - 1]);
             t[j] = oadd(lo[j - 1], g);
             lo[j] = t[j];
-            if (ll * 2 > (j - 1)) {
+            if (ll * 2 > (j - 1))
+            {
                 b[j] = omul(b[j - 1], h);
-            } else {
+            }
+            else
+            {
                 b[j] = kof(gf[oinv(d[j])], lo[j - 1]);
                 ll = j - ll;
 
-                if (j == 2 * G_T) {
+                if (j == 2 * G_T)
+                {
                     if (!(d[G_T * 2 - 1] == 0 &&
                           d[G_T * 2 - 3] == 0 &&
-                          odeg(lo[j - 1]) == G_T)
-                        || !(odeg(lo[j - 1]) == G_T)) {
-                        if ((d[G_T * 2 - 1] == 0
-                             && odeg(lo[j - 2]) == G_T - 1))
+                          odeg(lo[j - 1]) == G_T) ||
+                        !(odeg(lo[j - 1]) == G_T))
+                    {
+                        if ((d[G_T * 2 - 1] == 0 && odeg(lo[j - 2]) == G_T - 1))
                         {
                             lo[j - 1] = omul(lo[j - 2], h);
                         }
@@ -1277,16 +1390,21 @@ static OP bma(unsigned short s[], int kk)
     }
 
     k = 0;
-    if (odeg(lo[j - 1]) == G_T) {
+    if (odeg(lo[j - 1]) == G_T)
+    {
         x = chen(lo[j - 1]);
-    } else {
+    }
+    else
+    {
         printf("baka==\n");
         exit(1);
     }
 
     int count = 0;
-    for (int i = 0; i < deg(x) + 1; i++) {
-        if (x.x[i] >= 0) {
+    for (int i = 0; i < deg(x) + 1; i++)
+    {
+        if (x.x[i] >= 0)
+        {
             printf("xx[%d]=1\n", (x.x[i]));
             count++;
         }
@@ -1294,18 +1412,20 @@ static OP bma(unsigned short s[], int kk)
         if (x.x[i] == 0)
             k++;
 
-        if (k > 1) {
+        if (k > 1)
+        {
             printf("baka0\n");
             exit(1);
         }
     }
 
-    if (count < G_T) {
+    if (count < G_T)
+    {
         printf("vaka in bms %d\n", count);
         exit(1);
     }
 
-    return lo[j - 1];    // return count;
+    return lo[j - 1]; // return count;
 }
 
 static OP sendrier2(unsigned short zz[G_N], MTX L)
@@ -1313,9 +1433,12 @@ static OP sendrier2(unsigned short zz[G_N], MTX L)
     unsigned short s[G_K + 1] = {0}, rt[G_K21] = {0};
     int j;
 
-    for (j = 0; j < G_N; j++) {
-        if (zz[j] > 0) {
-            for (int k = 0; k < G_K21; k++) {
+    for (j = 0; j < G_N; j++)
+    {
+        if (zz[j] > 0)
+        {
+            for (int k = 0; k < G_K21; k++)
+            {
                 rt[k] ^= L.x[j][k];
             }
         }
@@ -1326,7 +1449,8 @@ static OP sendrier2(unsigned short zz[G_N], MTX L)
 
     vec u = {0};
     vec x = bfd(rt);
-    for (int i = 0; i < G_K21; i++)    {
+    for (int i = 0; i < G_K21; i++)
+    {
         u.x[G_K / 2 - i] = x.x[i];
     }
     for (int i = 0; i < G_K21; i++)
@@ -1354,18 +1478,19 @@ static OP sendrier2(unsigned short zz[G_N], MTX L)
     return bma(s, G_K);
 }
 
-//言わずもがな
+// 言わずもがな
 int main(void)
 {
     int i;
     unsigned short zz[G_N] = {0};
-    OP  f = {0}, r = {0};
+    OP f = {0}, r = {0};
     vec v = {0}, x = {0};
     MTX R = {0}, O = {0};
     unsigned short s[G_K + 1] = {0};
     struct timespec ts;
 
-    if (timespec_get(&ts, TIME_UTC) == 0) {
+    if (timespec_get(&ts, TIME_UTC) == 0)
+    {
         exit(1);
     }
     srandom(ts.tv_nsec ^ ts.tv_sec); /* PRNG にシードを設定する */
@@ -1380,7 +1505,7 @@ int main(void)
 
     // エラーベクトルの初期化
     memset(zz, 0, sizeof(zz));
-    //重み G_T のエラーベクトルを生成する
+    // 重み G_T のエラーベクトルを生成する
     mkerr(zz, G_T);
     // 暗号文の生成(s=eH)
     // x = sin2(zz, R);
@@ -1418,7 +1543,8 @@ int main(void)
             printf("i= %d,", i);
     printf("\n");
 
-    if (odeg(f) < G_T) {
+    if (odeg(f) < G_T)
+    {
         printpol(o2v(r));
         printf("==goppa\n");
         for (i = 0; i < G_N; i++)

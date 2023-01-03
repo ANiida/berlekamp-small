@@ -23,9 +23,9 @@
 #include <sys/types.h>
 // #include "4096.h"
 // #include "1024.h"
-
+#include "gf.h"
 // #include "2048.h"
-#include "8192.h"
+//#include "8192.h"
 // #include "512.h"
 #include "global.h"
 #include "struct.h"
@@ -56,7 +56,7 @@ int num = 0;
 // static const unsigned short gf[N] = {0, 1, 2, 4, 8, 16, 32, 64, 128, 29, 58, 116, 232, 205, 135, 19, 38, 76, 152, 45, 90, 180, 117, 234, 201, 143, 3, 6, 12, 24, 48, 96, 192, 157, 39, 78, 156, 37, 74, 148, 53, 106, 212, 181, 119, 238, 193, 159, 35, 70, 140, 5, 10, 20, 40, 80, 160, 93, 186, 105, 210, 185, 111, 222, 161, 95, 190, 97, 194, 153, 47, 94, 188, 101, 202, 137, 15, 30, 60, 120, 240, 253, 231, 211, 187, 107, 214, 177, 127, 254, 225, 223, 163, 91, 182, 113, 226, 217, 175, 67, 134, 17, 34, 68, 136, 13, 26, 52, 104, 208, 189, 103, 206, 129, 31, 62, 124, 248, 237, 199, 147, 59, 118, 236, 197, 151, 51, 102, 204, 133, 23, 46, 92, 184, 109, 218, 169, 79, 158, 33, 66, 132, 21, 42, 84, 168, 77, 154, 41, 82, 164, 85, 170, 73, 146, 57, 114, 228, 213, 183, 115, 230, 209, 191, 99, 198, 145, 63, 126, 252, 229, 215, 179, 123, 246, 241, 255, 227, 219, 171, 75, 150, 49, 98, 196, 149, 55, 110, 220, 165, 87, 174, 65, 130, 25, 50, 100, 200, 141, 7, 14, 28, 56, 112, 224, 221, 167, 83, 166, 81, 162, 89, 178, 121, 242, 249, 239, 195, 155, 43, 86, 172, 69, 138, 9, 18, 36, 72, 144, 61, 122, 244, 245, 247, 243, 251, 235, 203, 139, 11, 22, 44, 88, 176, 125, 250, 233, 207, 131, 27, 54, 108, 216, 173, 71, 142};
 // static const unsigned short fg[N] = {0, 1, 2, 26, 3, 51, 27, 199, 4, 224, 52, 239, 28, 105, 200, 76, 5, 101, 225, 15, 53, 142, 240, 130, 29, 194, 106, 249, 201, 9, 77, 114, 6, 139, 102, 48, 226, 37, 16, 34, 54, 148, 143, 219, 241, 19, 131, 70, 30, 182, 195, 126, 107, 40, 250, 186, 202, 155, 10, 121, 78, 229, 115, 167, 7, 192, 140, 99, 103, 222, 49, 254, 227, 153, 38, 180, 17, 146, 35, 137, 55, 209, 149, 207, 144, 151, 220, 190, 242, 211, 20, 93, 132, 57, 71, 65, 31, 67, 183, 164, 196, 73, 127, 111, 108, 59, 41, 85, 251, 134, 187, 62, 203, 95, 156, 160, 11, 22, 122, 44, 79, 213, 230, 173, 116, 244, 168, 88, 8, 113, 193, 248, 141, 129, 100, 14, 104, 75, 223, 238, 50, 198, 255, 25, 228, 166, 154, 120, 39, 185, 181, 125, 18, 69, 147, 218, 36, 33, 138, 47, 56, 64, 210, 92, 150, 189, 208, 206, 145, 136, 152, 179, 221, 253, 191, 98, 243, 87, 212, 172, 21, 43, 94, 159, 133, 61, 58, 84, 72, 110, 66, 163, 32, 46, 68, 217, 184, 124, 165, 119, 197, 24, 74, 237, 128, 13, 112, 247, 109, 162, 60, 83, 42, 158, 86, 171, 252, 97, 135, 178, 188, 205, 63, 91, 204, 90, 96, 177, 157, 170, 161, 82, 12, 246, 23, 236, 123, 118, 45, 216, 80, 175, 214, 234, 231, 232, 174, 233, 117, 215, 245, 235, 169, 81, 89, 176};
 
-static unsigned short c[E * K + 1] = {0};
+static unsigned short c[G_E * G_K + 1] = {0};
 
 unsigned short oinv(unsigned short a);
 
@@ -152,25 +152,25 @@ void GF_mul2(unsigned short *out, unsigned short *in0, unsigned short *in1)
 {
   int i, j;
 
-  unsigned short prod[K * 2 - 1];
+  unsigned short prod[G_K * 2 - 1];
 
-  for (i = 0; i < K * 2 - 1; i++)
+  for (i = 0; i < G_K * 2 - 1; i++)
     prod[i] = 0;
 
-  for (i = 0; i < K; i++)
-    for (j = 0; j < K; j++)
+  for (i = 0; i < G_K; i++)
+    for (j = 0; j < G_K; j++)
       prod[i + j] ^= gf_mul(in0[i], in1[j]);
 
   //
 
-  for (i = (K - 1) * 2; i >= K; i--)
+  for (i = (G_K - 1) * 2; i >= G_K; i--)
   {
-    prod[i - K + 3] ^= prod[i];
-    prod[i - K + 1] ^= prod[i];
-    prod[i - K + 0] ^= gf_mul(prod[i], (unsigned short)2);
+    prod[i - G_K + 3] ^= prod[i];
+    prod[i - G_K + 1] ^= prod[i];
+    prod[i - G_K + 0] ^= gf_mul(prod[i], (unsigned short)2);
   }
 
-  for (i = 0; i < K; i++)
+  for (i = 0; i < G_K; i++)
     out[i] = prod[i];
 }
 
@@ -180,19 +180,19 @@ void GF_mul(unsigned short *out, unsigned short *in0, unsigned short *in1)
 {
   int i, j;
 
-  unsigned short prod[K * 2 - 1] = {0};
+  unsigned short prod[G_K * 2 - 1] = {0};
 
-  for (i = 0; i < K * 2 - 1; i++)
+  for (i = 0; i < G_K * 2 - 1; i++)
     prod[i] = 0;
 
-  for (i = 0; i < K; i++)
+  for (i = 0; i < G_K; i++)
   {
-    for (j = 0; j < K; j++)
+    for (j = 0; j < G_K; j++)
       prod[i + j] ^= gf[mlt(fg[in0[i]], fg[in1[j]])];
   }
   //
 
-  for (i = (K - 1) * 2; i >= K; i--)
+  for (i = (G_K - 1) * 2; i >= G_K; i--)
   {
     /*
     //GF(2^1024) from sage
@@ -208,12 +208,19 @@ void GF_mul(unsigned short *out, unsigned short *in0, unsigned short *in1)
         prod[i - K + 2] ^= prod[i];
         prod[i - K + 0] ^= prod[i];
       */
-
+/*
     // GF(2^256) from sage
-    prod[i - K + 10] ^= prod[i];
-    prod[i - K + 5] ^= prod[i];
-    prod[i - K + 2] ^= prod[i];
-    prod[i - K + 0] ^= prod[i];
+    prod[i - G_K + 10] ^= prod[i];
+    prod[i - G_K + 5] ^= prod[i];
+    prod[i - G_K + 2] ^= prod[i];
+    prod[i - G_K + 0] ^= prod[i];
+*/
+// GF(2^16) from sage
+    prod[i - G_K + 5] ^= prod[i];
+    prod[i - G_K + 3] ^= prod[i];
+    prod[i - G_K + 2] ^= prod[i];
+    prod[i - G_K + 0] ^= prod[i];
+
 
     /*
        //128
@@ -246,7 +253,7 @@ void GF_mul(unsigned short *out, unsigned short *in0, unsigned short *in1)
     */
   }
 
-  for (i = 0; i < K; i++)
+  for (i = 0; i < G_K; i++)
     out[i] = prod[i];
 }
 
@@ -257,41 +264,41 @@ vec renritu(MTX a)
   int i, j, k;
   vec v = {0};
 
-  for (i = 0; i < K; i++)
+  for (i = 0; i < G_K; i++)
   {
     p = a.x[i][i];
 
-    for (j = 0; j < (K + 1); j++)
+    for (j = 0; j < (G_K + 1); j++)
     {
       a.x[i][j] = gf[mlt(fg[a.x[i][j]], oinv(p))];
     }
 
-    for (j = 0; j < K; j++)
+    for (j = 0; j < G_K; j++)
     {
       if (i != j)
       {
         d = a.x[j][i];
 
-        for (k = i; k < (K + 1); k++)
+        for (k = i; k < (G_K + 1); k++)
         {
           a.x[j][k] = a.x[j][k] ^ gf[mlt(fg[d], fg[a.x[i][k]])];
         }
       }
     }
   }
-  for (i = 0; i < K; i++)
+  for (i = 0; i < G_K; i++)
   {
     if (a.x[i][i] != 1)
       // exit(1);
-      for (j = 0; j < K + 1; j++)
+      for (j = 0; j < G_K + 1; j++)
         printf("%d,", a.x[i][j]);
     printf("\n");
   }
   printf("\n");
 
-  for (i = 0; i < K; i++)
+  for (i = 0; i < G_K; i++)
   {
-    v.x[i] = a.x[i][K];
+    v.x[i] = a.x[i][G_K];
     // v.x[128]=1;
     printf(" x%d = %d\n", i, v.x[i]);
   }
@@ -304,7 +311,7 @@ vec renritu(MTX a)
 /* return: 0 for success and -1 for failure */
 int mykey(unsigned short *out, vec x)
 {
-  unsigned short mat[K + 1][K] = {0};
+  unsigned short mat[G_K + 1][G_K] = {0};
   MTX a = {0};
   int i, j, k;
 
@@ -312,13 +319,13 @@ int mykey(unsigned short *out, vec x)
 
   mat[0][0] = 1;
 
-  for (i = 1; i < K; i++)
+  for (i = 1; i < G_K; i++)
     mat[0][i] = 0;
 
-  for (i = 0; i < K; i++)
+  for (i = 0; i < G_K; i++)
     mat[1][i] = x.x[i];
 
-  for (j = 2; j <= K; j++)
+  for (j = 2; j <= G_K; j++)
   {
     // for(i=0;i<128;i++)
     // mat[j][i]=gf[mlt(fg[mat[j-1][i]],fg[x.x[i]])];
@@ -330,9 +337,9 @@ int mykey(unsigned short *out, vec x)
   }
   // exit(1);
   //
-  for (i = 0; i < K; i++)
+  for (i = 0; i < G_K; i++)
   {
-    for (j = 0; j < K + 1; j++)
+    for (j = 0; j < G_K + 1; j++)
     {
       a.x[i][j] = mat[j][i];
       printf("%d,", mat[j][i]);
@@ -351,7 +358,7 @@ int mykey(unsigned short *out, vec x)
   // printsage(v);
   // printf("\n");
 
-  for (i = 0; i < K; i++)
+  for (i = 0; i < G_K; i++)
   {
     out[i] = v.x[i];
     printf("%d,", out[i]);
@@ -369,7 +376,7 @@ unsigned int gf_div(unsigned int a, unsigned int b)
   if (i == 0)
     return 1;
   if (i > 0)
-    return (N - i);
+    return (G_N - i);
   if (i < 0)
     return 1 - i;
 }
@@ -401,7 +408,7 @@ oinv(unsigned short a)
   if (a == 0)
     return 0;
 
-  return N - fg[a] + 1;
+  return G_N - fg[a] + 1;
 
   printf("no return \n");
 
@@ -431,7 +438,7 @@ int deg(vec a)
   int i, n = 0, flg = 0;
 
   // #pragma omp parallel for
-  for (i = 0; i < DEG; i++)
+  for (i = 0; i < G_DEG; i++)
   {
     if (a.x[i] > 0)
     {
@@ -467,7 +474,7 @@ int primitive(vec x)
 void op_print_raw(const OP f)
 {
   puts("op_print_raw:");
-  for (int i = 0; i < DEG; i++)
+  for (int i = 0; i < G_DEG; i++)
   {
     if (f.t[i].a > 0)
       printf("[%d] %ux^%u\n", i, f.t[i].a, f.t[i].n);
@@ -478,7 +485,7 @@ bool op_verify(const OP f)
 {
   bool end = false;
   unsigned short n_max = 0;
-  for (int i = 0; i < DEG; i++)
+  for (int i = 0; i < G_DEG; i++)
   {
     if (end && (f.t[i].n != 0 || f.t[i].a != 0))
     {
@@ -513,7 +520,7 @@ vec vadd(vec a, vec b)
 
   // printf("deg=%d %d\n",deg(a),deg(b));
 
-  for (i = 0; i < DEG; i++)
+  for (i = 0; i < G_DEG; i++)
     c.x[i] = a.x[i] ^ b.x[i];
 
   return c;
@@ -530,7 +537,7 @@ vec vterml(vec f, oterm t)
   // f=conv(f);
   // k = deg (o2v(f));
 
-  for (i = 0; i < DEG; i++)
+  for (i = 0; i < G_DEG; i++)
   {
     // h.t[i].n = f.t[i].n + t.n;
     if (f.x[i] > 0)
@@ -549,7 +556,7 @@ oterm vLT(vec f)
   oterm t = {0};
 
   // k = deg (o2v (f));
-  for (i = 0; i < DEG; i++)
+  for (i = 0; i < G_DEG; i++)
   {
     // printf("a=%d %d\n",f.t[i].a,f.t[i].n);
     if (f.x[i] > 0)
@@ -1093,7 +1100,7 @@ vec vinv(vec a)
     a = vcoef(a);
 
   i = 1;
-  while (i < K + 1)
+  while (i < G_K + 1)
   {
     v = vmul_2(vmul_2(v, v), a);
     if (i > 2)
@@ -1216,14 +1223,14 @@ vec kara(vec a, vec b)
 static inline unsigned int gf_pow(unsigned int n, unsigned int u)
 {
 
-  if (n % N == 0)
+  if (n % G_N == 0)
     return 1;
-  return (u * n - n) % (N - 1) + 1;
+  return (u * n - n) % (G_N - 1) + 1;
 }
 
 int atom(unsigned short a)
 {
-  if (gf_pow(N - 1, a) == 1)
+  if (gf_pow(G_N - 1, a) == 1)
   {
     return 0;
   }
@@ -1238,7 +1245,7 @@ vec vpowmod(vec f, vec mod)
   vec v = {0};
   vec ret = {0}, s = {0}, t = {0};
 
-  int n = N;
+  int n = G_N;
   v.x[0] = 1;
   ret = v;
   while (n > 0)
@@ -1333,7 +1340,7 @@ vec vpp(vec f, vec mod)
   s = f;
 
   // 繰り返し２乗法
-  for (i = 1; i < E + 1; i++)
+  for (i = 1; i < G_E + 1; i++)
   {
     s = vmod(vmul_2(s, s), mod);
   }
@@ -1349,7 +1356,7 @@ unsigned short v2a(oterm a)
     return 0;
 
   // printf("aa=%d\n",a.a);
-  for (j = 0; j < N; j++)
+  for (j = 0; j < G_N; j++)
   {
     if (gf[j] == a.a && a.a > 0)
     {
@@ -1368,7 +1375,7 @@ void printsage(vec a)
   oterm b;
 
   printf("poly=");
-  for (i = 0; i < DEG; i++)
+  for (i = 0; i < G_DEG; i++)
   {
     if (a.x[i] > 0)
     {
@@ -1391,7 +1398,7 @@ void fprintsage(vec a, FILE *fp)
 
   //  fp=fopen("dat","w");
   fprintf(fp, "poly=");
-  for (i = 0; i < DEG; i++)
+  for (i = 0; i < G_DEG; i++)
   {
     if (a.x[i] > 0)
     {
@@ -1400,7 +1407,7 @@ void fprintsage(vec a, FILE *fp)
       j = v2a(b);
       // printf("%d,==ba\n",b.a);
       // printf ("X**%d+", i); //for GF2
-      if (i == K)
+      if (i == G_K)
       {
         fprintf(fp, "B('a^%d')*X**%d;", j, i); // for GF(2^m)
       }
@@ -1416,7 +1423,7 @@ void fprintsage(vec a, FILE *fp)
 vec vgcd(vec xx, vec yy)
 {
   vec tt = {0}, tmp, h = {0}, ss = {0}, ee = {0};
-  ee.x[K] = 1;
+  ee.x[G_K] = 1;
 
   h.x[0] = 1;
   // h.x[0] = 0;
@@ -1456,7 +1463,7 @@ chk(vec f)
   vec x = {0};
 
   // x = o2v(f);
-  for (i = 0; i < DEG; i++)
+  for (i = 0; i < G_DEG; i++)
   {
     if (f.x[i] > 0)
     {
@@ -1474,7 +1481,7 @@ OP init_pol(OP f)
 {
   int i;
 
-  for (i = 0; i < DEG; i++)
+  for (i = 0; i < G_DEG; i++)
   {
     f.t[i].a = 0;
     f.t[i].n = 0;
@@ -1488,11 +1495,11 @@ static void
 ginit(unsigned short *g)
 {
   int j, count = 0, k = 0;
-  unsigned short gg[K + 1] = {0};
+  unsigned short gg[G_K + 1] = {0};
 
   // printf("in ginit\n");
 
-  g[K] = 1;          // xor128();
+  g[G_K] = 1;          // xor128();
   g[0] = rand() % 2; // or N
   k = rand() % 2;    //(K - 1);
   if (k > 0)
@@ -1500,19 +1507,19 @@ ginit(unsigned short *g)
     while (count < k)
     {
       // printf("in whule\n");
-      j = rand() % (K);
-      if (j < K && j > 0 && g[j] == 0)
+      j = rand() % (G_K);
+      if (j < G_K && j > 0 && g[j] == 0)
       {
-        g[j] = rand() % N; // or N;
+        g[j] = rand() % G_N; // or N;
         count++;
       }
     }
   }
 
-  for (j = 0; j < K + 1; j++)
-    gg[j] = g[K - j];
+  for (j = 0; j < G_K + 1; j++)
+    gg[j] = g[G_K - j];
 
-  memcpy(g, gg, sizeof(K + 1));
+  memcpy(g, gg, sizeof(G_K + 1));
 }
 
 // 配列からベクトル表現の多項式へ変換する
@@ -1524,7 +1531,7 @@ vec Setvec(int n)
   return v;
 }
 
-OP ww[T] = {0};
+OP ww[G_T] = {0};
 
 // 配列の値を係数として多項式に設定する
 vec setpol(unsigned short f[], int n)
@@ -1547,7 +1554,7 @@ vec mkpol()
 {
   int i, j, k, flg, ii = 0;
   vec w = {0};
-  static unsigned short g[K + 1] = {0};
+  static unsigned short g[G_K + 1] = {0};
 
   do
   {
@@ -1566,11 +1573,11 @@ vec mkpol()
       exit(1);
     }
 
-    for (i = 0; i < K; i++)
+    for (i = 0; i < G_K; i++)
     {
-      if (g[K - 1] > 0)
+      if (g[G_K - 1] > 0)
         flg = 1;
-      if (i % 2 == 1 && g[i] > 0 && i < K)
+      if (i % 2 == 1 && g[i] > 0 && i < G_K)
         k++;
     }
 
@@ -1578,7 +1585,7 @@ vec mkpol()
     if ((k > 0 && flg == 0) || (k > 1 && flg == 1))
     // if(k>0)
     {
-      w = setpol(g, K + 1);
+      w = setpol(g, G_K + 1);
       j = 1;
       // if(isquad(w)==-1)
       // exit(1);
@@ -1622,7 +1629,7 @@ int ben_or(vec f)
   i = 0;
 
   // r(x)^{q^i} square pow mod
-  for (i = 0; i < K / 2; i++)
+  for (i = 0; i < G_K / 2; i++)
   {
     printf(":i=%d", i);
     // irreducible over GH(8192) 2^13
@@ -1660,14 +1667,14 @@ trace(vec f, unsigned short x)
   return u;
 }
 
-unsigned short dd[DEG][DEG] = {0};
+unsigned short dd[G_DEG][G_DEG] = {0};
 
 void get_irrpoly(void)
 {
   int i, j, l, ii = 0;
   vec w = {0};
   FILE *fp;
-  unsigned short ta[DEG] = {0};
+  unsigned short ta[G_DEG] = {0};
 
   j = 0;
   fp = fopen("dat.sage", "w");
@@ -1697,7 +1704,7 @@ aa:
   }
 
   // 多項式の値が0でないことを確認
-  for (i = 0; i < N; i++)
+  for (i = 0; i < G_N; i++)
   {
     ta[i] = trace(w, i);
     if (ta[i] == 0)
@@ -1739,13 +1746,13 @@ int irr_poly_to_file()
   f4 = fopen("dat2.sage", "w");
   // f5=fopen("dat3.sage","w");
   // this is child process
-  fprintf(f1, "B=GF(2^%d,'a')\n", E);
+  fprintf(f1, "B=GF(2^%d,'a')\n", G_E);
   fprintf(f1, "F.<X>=B[]\n");
-  fprintf(f2, "B=GF(2^%d,'a')\n", E);
+  fprintf(f2, "B=GF(2^%d,'a')\n", G_E);
   fprintf(f2, "F.<X>=B[]\n");
-  fprintf(f3, "B=GF(2^%d,'a')\n", E);
+  fprintf(f3, "B=GF(2^%d,'a')\n", G_E);
   fprintf(f3, "F.<X>=B[]\n");
-  fprintf(f4, "B=GF(2^%d,'a')\n", E);
+  fprintf(f4, "B=GF(2^%d,'a')\n", G_E);
   fprintf(f4, "F.<X>=B[]\n");
 
   i = 0;
@@ -1861,30 +1868,30 @@ void compare()
 
   do
   {
-    for (i = 0; i < K; i++)
-      pp.x[i] = rand() % N;
+    for (i = 0; i < G_K; i++)
+      pp.x[i] = rand() % G_N;
     MTX opu = {0};
     vec cc = {0};
 
     opu.x[0][0] = 1;
-    for (i = 1; i < K; i++)
+    for (i = 1; i < G_K; i++)
       opu.x[0][i] = 0; // rand() % N;
 
-    for (i = 0; i < K; i++)
+    for (i = 0; i < G_K; i++)
       opu.x[1][i] = pp.x[i];
 
-    for (i = 0; i < K; i++)
+    for (i = 0; i < G_K; i++)
     {
-      for (j = 2; j <= K; j++)
+      for (j = 2; j <= G_K; j++)
       {
         opu.x[j][i] = gf[mltn(j, fg[pp.x[i]])];
         // GF_mul2(opu.x[j], opu.x[j - 1], pp.x);
       }
     }
 
-    for (i = 0; i < K; i++)
+    for (i = 0; i < G_K; i++)
     {
-      for (j = 0; j < K + 1; j++)
+      for (j = 0; j < G_K + 1; j++)
       {
         a.x[i][j] = opu.x[j][i];
         printf("%d,", opu.x[j][i]);
@@ -1895,11 +1902,11 @@ void compare()
 
     v = renritu(a);
 
-    for (i = 0; i < K; i++)
-      x.x[K - i + 1] = v.x[i];
-    x.x[K] = 1;
+    for (i = 0; i < G_K; i++)
+      x.x[G_K - i + 1] = v.x[i];
+    x.x[G_K] = 1;
 
-    v.x[K] = 1;
+    v.x[G_K] = 1;
 
     printsage(v);
     printf("\n");
@@ -1933,6 +1940,8 @@ void speed()
       printf("i=%d, %d %d\n", i, q.x[i], r.x[i]);
   exit(1);
 }
+
+/*
 // 言わずもがな
 int main(void)
 {
@@ -1959,10 +1968,10 @@ int main(void)
   l = -1;
   while (l < 0)
   {
-    for (i = 0; i < K; i++)
-      pp.x[i] = rand() % N;
+    for (i = 0; i < G_K; i++)
+      pp.x[i] = rand() % G_N;
     mykey(tt.x, pp);
-    tt.x[K] = 1;
+    tt.x[G_K] = 1;
     if (ben_or(tt) == 0)
     {
       printf("\n");
@@ -2002,3 +2011,4 @@ int main(void)
 
   return 0;
 }
+*/

@@ -585,7 +585,7 @@ static vec chen(OP f)
 
     return e;
 }
-
+/*
 // GF(2^m) then set m in this function.
 static int ben_or(OP f)
 {
@@ -634,7 +634,7 @@ static int ben_or(OP f)
 
     return 0;
 }
-
+*/
 //配列の値を係数として多項式に設定する
 static OP setpol(unsigned short f[], int n)
 {
@@ -876,6 +876,28 @@ aa:
     // irreducible goppa code (既役多項式が必要なら、
     // ここのコメントを外すこと。)  ????
 
+  vec pp = {0};
+vec tt={0};
+int l = -1;
+  while (l < 0)
+  {
+    for (i = 0; i < G_K; i++)
+      pp.x[i] = rand() % G_N;
+    mykey(tt.x, pp);
+    tt.x[G_K] = 1;
+    l=ben_or(tt);
+    if (l == 0)
+    {
+      printf("\n");
+      printsage(tt);
+      printf(" ==irr\n");
+      break;
+    }
+    if(l==0)
+    break;
+  }
+  //exit(1);
+/*
     while (ll == -1) {
         r = mkpol();
         ll = ben_or(r);
@@ -888,10 +910,10 @@ aa:
     }
     printsage(o2v(r));
     printf("\n");
-
+*/
     memset(ta, 0, sizeof(ta));
-    printpol(o2v(r));
-
+    printpol((tt));
+    r=v2o(tt);
     //多項式の値が0でないことを確認
     for (i = 0; i < G_N; i++) {
         ta[i] = trace(r, i);

@@ -897,20 +897,7 @@ int l = -1;
     break;
   }
   //exit(1);
-/*
-    while (ll == -1) {
-        r = mkpol();
-        ll = ben_or(r);
 
-        if (ii > 300) {
-            printf("too many try\n");
-            exit(1);
-        }
-        ii++;
-    }
-    printsage(o2v(r));
-    printf("\n");
-*/
     memset(ta, 0, sizeof(ta));
     printpol((tt));
     r=v2o(tt);

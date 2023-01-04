@@ -1453,21 +1453,9 @@ int main(void)
     // 公開鍵を生成する(Niederreiterとは異なる)
     // 鍵サイズ G_K : Goppa Code
     R = pk_gen();
-    unsigned short arr[G_N], z1[G_N]={0};
-    int j;
     // エラーベクトルの初期化
     memset(zz, 0, sizeof(zz));
-    memset(z1, 0, sizeof(z1));
     // 重み G_T のエラーベクトルを生成する
-    /*
-    for (j = 0; j < G_N; j++)
-        arr[j] = j;
-    for (j = 0; j < G_T; j++)
-        z1[j] = 1;
-    random_shuffle(arr, G_N);
-    for (j = 0; j < G_N; j++)
-        zz[j] = z1[arr[j]];
-    */
      mkerr(zz, G_T);
     //  暗号文の生成(s=eH)
     //  x = sin2(zz, R);

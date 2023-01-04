@@ -60,34 +60,6 @@ static unsigned short g[G_K + 1] = {0}; /// ginit(), ogt(), mkpol(), mkd()
 //// static unsigned int B = 0;  削除
 //// static MTX H = {0}; ==> pk_gen() 内に移動
 
-// 有限体の元の逆数
-static unsigned short oinv(unsigned short a)
-{
-    if (a == 0)
-        return 0;
-
-    for (unsigned short i = 0; i < G_N; i++)
-    {
-        if (gf[mlt(fg[a], i)] == 1)
-            return i;
-    }
-    printf("no return \n");
-    return 0; //  exit (1);
-}
-
-// aに何をかけたらbになるか
-static unsigned short equ(unsigned short a, unsigned short b)
-{
-    int i;
-
-    for (i = 0; i < G_N; i++)
-    {
-        if (gf[mlt(fg[a], fg[i])] == b)
-            break;
-    }
-    return i;
-}
-
 // OP型からベクトル型への変換
 static vec o2v(OP f)
 {

@@ -165,7 +165,7 @@ void merge_rand(unsigned short a[], int n)  /// n = G_N で呼ばれる、不要
     radix_sort(data, 0, G_N - 1, 32);
 
     for (int i = 0; i < G_N; i++) {
-        printf("%d,%d %d\n", i, data[i].ind, data[i].rand);
+        //printf("%d,%d %d\n", i, data[i].ind, data[i].rand);
         a[i] = data[i].ind;
     }
 }

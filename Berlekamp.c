@@ -715,12 +715,10 @@ static void Pgen()
     // CNT++;
     memset(P, 0, sizeof(P));
     int i, j;
-
+    
     for (i = 0; i < G_N; i++)
         P[i] = i;
     random_shuffle(P, G_N);
-    // merge_rand(P, G_N);
-
     for (int i = 0; i < G_N; i++)
         inv_P[P[i]] = i;
 }

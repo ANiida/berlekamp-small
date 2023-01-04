@@ -32,7 +32,7 @@ static void merge1(d_type array[], d_type work[], int left, int mid, int right)
     }
 }
 
-static void insertion_sortA(d_type array[], int right)
+void insertion_sortA(d_type array[G_N], int right)
 {
     if (array[0] > array[1])               // 高速化のため
         SWAP(d_type, array[0], array[1]);

@@ -25,7 +25,7 @@
 // #include "1024.h"
 #include "gf.h"
 // #include "2048.h"
-// #include "8192.h"
+//#include "8192.h"
 // #include "512.h"
 #include "global.h"
 #include "struct.h"
@@ -208,18 +208,13 @@ void GF_mul(unsigned short *out, unsigned short *in0, unsigned short *in1)
         prod[i - K + 2] ^= prod[i];
         prod[i - K + 0] ^= prod[i];
       */
-    /*
-        // GF(2^256) from sage
-        prod[i - G_K + 10] ^= prod[i];
-        prod[i - G_K + 5] ^= prod[i];
-        prod[i - G_K + 2] ^= prod[i];
-        prod[i - G_K + 0] ^= prod[i];
-    */
-    // GF(2^16) from sage
+/*
+    // GF(2^256) from sage
+    prod[i - G_K + 10] ^= prod[i];
     prod[i - G_K + 5] ^= prod[i];
-    prod[i - G_K + 3] ^= prod[i];
     prod[i - G_K + 2] ^= prod[i];
     prod[i - G_K + 0] ^= prod[i];
+*/
 
     /*
        //128
@@ -243,13 +238,13 @@ void GF_mul(unsigned short *out, unsigned short *in0, unsigned short *in1)
         prod[i - K + 3] ^= prod[i];
         prod[i - K + 0] ^= prod[i];
     */
-    /*
+    
     //16
-        prod[i - K + 5] ^= prod[i];
-        prod[i - K + 3] ^= prod[i];
-        prod[i - K + 2] ^= prod[i];
-        prod[i - K + 0] ^= prod[i];
-    */
+        prod[i - G_K + 5] ^= prod[i];
+        prod[i - G_K + 3] ^= prod[i];
+        prod[i - G_K + 2] ^= prod[i];
+        prod[i - G_K + 0] ^= prod[i];
+    
   }
 
   for (i = 0; i < G_K; i++)
@@ -1498,7 +1493,7 @@ ginit(unsigned short *g)
 
   // printf("in ginit\n");
 
-  g[G_K] = 1;        // xor128();
+  g[G_K] = 1;          // xor128();
   g[0] = rand() % 2; // or N
   k = rand() % 2;    //(K - 1);
   if (k > 0)
@@ -1939,3 +1934,75 @@ void speed()
       printf("i=%d, %d %d\n", i, q.x[i], r.x[i]);
   exit(1);
 }
+
+/*
+// 言わずもがな
+int main(void)
+{
+  vec g, w;
+  unsigned int i, j, count = 0;
+  vec e[10] = {0}, v = {0}, x = {0}, z = {0}, ee = {0}, y = {0}, tt = {0}, ww, xx, f;
+  int l = -1, m, n;
+  int ii = 0;
+  // irreducible goppa code (既役多項式が必要なら、ここのコメントを外すこと。)
+  vec q = {0}, r = {0};
+  unsigned short ff[256] = {1, 1, 1, 1};
+  unsigned short gg[256] = {0, 0, 1, 1};
+  MTX a = {0};
+  char rr[16] = {0};
+
+  srand(clock());
+  i = 4;
+  j = 8;
+  printf("%d\n", gf[gf_mod(gf[5], gf[8])]);
+  // exit(1);
+
+  vec pp = {0};
+
+  l = -1;
+  while (l < 0)
+  {
+    for (i = 0; i < G_K; i++)
+      pp.x[i] = rand() % G_N;
+    mykey(tt.x, pp);
+    tt.x[G_K] = 1;
+    if (ben_or(tt) == 0)
+    {
+      printf("\n");
+      printsage(tt);
+      printf(" ==irr\n");
+      exit(1);
+    }
+  }
+  exit(1);
+
+  while (1) //(l == -1)
+  {
+    // w = mkpol();
+    l = ben_or(v);
+    printf("irr=%d\n", l);
+    if (l == 0)
+    {
+      printsage(v);
+      printf(" ==irr\n");
+      exit(1);
+      ii++;
+    }
+    if (ii > 300)
+    {
+      printf("too many error\n");
+      exit(1);
+    }
+    // ii++;
+    //
+  }
+  printf("aa\n");
+  //  exit(1);
+
+  // multi_process();
+  // irr_poly_to_file();
+  // get_irrpoly();
+
+  return 0;
+}
+*/

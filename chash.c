@@ -16,6 +16,14 @@
 
 #define STR_LENGTH 128
 #define PASSWORD_LENGTH 256
+#define SIZE_OF_ARRAY(array) (sizeof(array) / sizeof(array[0]))
+#define SWAP(type, a, b) \
+  {                      \
+    type work = a;       \
+    a = b;               \
+    b = work;            \
+  }
+
 
 #define ROTL32(X, B) rotl32((X), (B))
 static inline uint32_t
@@ -64,4 +72,18 @@ int mltn(int n, int x)
         n >>= 1; // n を1bit 左にずらす
     }
     return ret;
+}
+
+/*
+    Fisher-Yates shuffle による方法
+    配列の要素をランダムシャッフルする
+*/
+void random_shuffle(unsigned short *array, size_t size)
+{
+  for (size_t i = size; i > 1; --i)
+  {
+    size_t a = i - 1;
+    size_t b = rand() % i;
+    SWAP(int, array[a], array[b]);
+  }
 }

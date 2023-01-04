@@ -216,13 +216,13 @@ void GF_mul(unsigned short *out, unsigned short *in0, unsigned short *in1)
             prod[i - G_K + 0] ^= prod[i];
         */
 
-        /*
+        
            //128
-            prod[i - K + 7] ^= prod[i];
-            prod[i - K + 2] ^= prod[i];
-            prod[i - K + 1] ^= prod[i];
-            prod[i - K + 0] ^= prod[i];
-        */
+            prod[i - G_K + 7] ^= prod[i];
+            prod[i - G_K + 2] ^= prod[i];
+            prod[i - G_K + 1] ^= prod[i];
+            prod[i - G_K + 0] ^= prod[i];
+        
         /*
         //x^64+1x^3+1x^1+37x^0
             prod[i - K + 3] ^= prod[i];
@@ -238,12 +238,13 @@ void GF_mul(unsigned short *out, unsigned short *in0, unsigned short *in1)
             prod[i - K + 3] ^= prod[i];
             prod[i - K + 0] ^= prod[i];
         */
-
+       /*
         // 16
         prod[i - G_K + 5] ^= prod[i];
         prod[i - G_K + 3] ^= prod[i];
         prod[i - G_K + 2] ^= prod[i];
         prod[i - G_K + 0] ^= prod[i];
+        */
     }
 
     for (i = 0; i < G_K; i++)

@@ -740,9 +740,14 @@ static vec b2v(vec v)
 // 秘密置換を生成する
 static void Pgen()
 {
-    CNT++;
+    // CNT++;
     memset(P, 0, sizeof(P));
-    merge_rand(P, G_N);
+    int i, j;
+
+    for (i = 0; i < G_N; i++)
+        P[i] = i;
+    random_shuffle(P, G_N);
+    // merge_rand(P, G_N);
 
     for (int i = 0; i < G_N; i++)
         inv_P[P[i]] = i;
@@ -1456,7 +1461,7 @@ int main(void)
     // エラーベクトルの初期化
     memset(zz, 0, sizeof(zz));
     // 重み G_T のエラーベクトルを生成する
-     mkerr(zz, G_T);
+    mkerr(zz, G_T);
     //  暗号文の生成(s=eH)
     //  x = sin2(zz, R);
     x = sina(zz, R);

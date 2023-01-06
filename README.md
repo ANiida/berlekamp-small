@@ -4,6 +4,8 @@
 
 https://eprint.iacr.org/2022/514.pdf
 
+https://hal.inria.fr/inria-00073037/document
+
 この攻撃法を受けてパラメータを
 $n=6688,q=8192,k=256$
 に変更済み。

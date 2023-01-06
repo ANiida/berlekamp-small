@@ -2,9 +2,13 @@
 
 # 20230106
 
-https://eprint.iacr.org/2022/514.pdf
-
 https://hal.inria.fr/inria-00073037/document
+
+The Support Splitting Algorithm
+
+とんでもない論文を見つけてしまった。さらに、
+
+https://eprint.iacr.org/2022/514.pdf
 
 この攻撃法を受けてパラメータを
 $n=6688,q=8192,k=256$

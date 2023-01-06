@@ -208,21 +208,21 @@ void GF_mul(unsigned short *out, unsigned short *in0, unsigned short *in1)
             prod[i - K + 2] ^= prod[i];
             prod[i - K + 0] ^= prod[i];
           */
-        /*
+        
             // GF(2^256) from sage
             prod[i - G_K + 10] ^= prod[i];
             prod[i - G_K + 5] ^= prod[i];
             prod[i - G_K + 2] ^= prod[i];
             prod[i - G_K + 0] ^= prod[i];
-        */
-
         
+
+        /*
            //128
             prod[i - G_K + 7] ^= prod[i];
             prod[i - G_K + 2] ^= prod[i];
             prod[i - G_K + 1] ^= prod[i];
             prod[i - G_K + 0] ^= prod[i];
-        
+        */
         /*
         //x^64+1x^3+1x^1+37x^0
             prod[i - K + 3] ^= prod[i];
@@ -370,7 +370,7 @@ unsigned int gf_div(unsigned int a, unsigned int b)
     if (i == 0)
         return 1;
     if (i > 0)
-        return (G_N - i);
+        return (G_M - i);
     if (i < 0)
         return 1 - i;
 }
@@ -402,7 +402,7 @@ oinv(unsigned short a)
     if (a == 0)
         return 0;
 
-    return G_N - fg[a] + 1;
+    return G_M - fg[a] + 1;
 
     printf("no return \n");
 
@@ -1217,14 +1217,14 @@ vec kara(vec a, vec b)
 static inline unsigned int gf_pow(unsigned int n, unsigned int u)
 {
 
-    if (n % G_N == 0)
+    if (n % G_M == 0)
         return 1;
-    return (u * n - n) % (G_N - 1) + 1;
+    return (u * n - n) % (G_M - 1) + 1;
 }
 
 int atom(unsigned short a)
 {
-    if (gf_pow(G_N - 1, a) == 1)
+    if (gf_pow(G_M - 1, a) == 1)
     {
         return 0;
     }

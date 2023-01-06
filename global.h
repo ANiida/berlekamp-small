@@ -10,7 +10,7 @@
 /// これはちゃんと動く。
 # define G_N    6699       // 符号長 (== 256)
 # define G_M    8192       // 有限体の元の数 (M <= N)
-# define G_K    128        // 符号の次元
+# define G_K    256        // 符号の次元
 # define G_E    13         // 拡大体のビット数
 #else
 /// ulimit -s unlimited しても、いきなりセグフォ。

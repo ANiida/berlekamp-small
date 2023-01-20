@@ -1118,12 +1118,13 @@ void chen(vec f)
     //return e;
 }
 
-vec bma(unsigned short s[])
+// Input:符号の次元をKとすると、K個のシンドロームを要素として持つ配列ｓ
+// Output:誤り位置決定多項式（この多項式が０になる値を探すことでエラーの位置を求める）
+vec bma(unsigned short s[]) //sはシンドロームの値
 {
     int L = 0, m = -1, d[K] = {0}, k = 0, i, e;
-    vec f = {0}, g = {0}, h, v, c = {0}, cc = {0};
+    vec f = {0}, g = {0}, h, v;
 
-    c.x[1] = 1;
     f.x[0] = g.x[0] = 1;
 
     while (k <= (2 * T - 1))
@@ -1131,22 +1132,18 @@ vec bma(unsigned short s[])
         e = 0;
         for (i = 0; i < L; i++)
             e ^= gf[mlt(fg[f.x[i]], fg[s[k - i]])];
-        printf("L=%d i=%d\n", L, i);
-        d[k] = gf[mlt(fg[f.x[L]], fg[s[k - i]])] ^ e; // s[k] ^ e;
-        printf("d[%d]=%d s[k]=%d\n", k, d[k], s[k]);
-
-        printpol(f);
-        printf("%d,%d====f\n", k, d[k]);
+        
+        d[k] = gf[mlt(fg[f.x[i]], fg[s[k - i]])] ^ e;
         if (d[k] > 0)
         {
             h = f;
             memset(v.x, 0, sizeof(v.x));
             v.x[k - m] = 1;
+
             unsigned short a;
             a = (m < 0) ? 1 : oinv(d[m]);
-            cc = kof2(gf[mlt(fg[d[k]], a)], g);
-            f = vadd(f, vmul(cc, v));
-            if (L <= k / 2 + 1)
+            f = vadd(f, vmul(kof2(gf[mlt(fg[d[k]], a)], g), v));
+            if (L <= k / 2)
             {
                 L = k + 1 - L;
                 m = k;
@@ -1154,18 +1151,7 @@ vec bma(unsigned short s[])
             }
         }
         k++;
-        // if(deg(f)==T)
-        // break;
     }
-    printpol(f);
-    printf("==loc\n");
-    if (deg(f) == T + 1)
-    {
-        for (i = 0; i < T + 1; i++)
-            cc.x[i] = f.x[i + 1];
-    }
-    if (deg(cc) == T)
-        return cc;
 
     return f;
 }
@@ -1286,10 +1272,10 @@ int main()
     printf("%d\n", deg(r));
     printpol(r); // print error locater polynomial
     printf("\n");
-    x = chen((r)); // searching error position
+    chen((r)); // searching error position
     printpol(r);
     printf("==bma\n");
-    elo(x);
     */
+
     return 0;
 }

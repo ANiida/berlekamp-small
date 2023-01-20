@@ -1,5 +1,11 @@
 # berlekamp-small
 
+# 20230121
+
+今、mine以下にNiederreiter暗号をするための必要最小限のコードが有ります。
+これが私の持つ全てと言えるかもしれません。
+コードは短いのですぐ読めると思います。
+
 # 20230106
 
 https://hal.inria.fr/inria-00073037/document

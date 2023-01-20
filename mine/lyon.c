@@ -1,12 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <time.h>
 
 #include "8192.h"
-#include "global2.h"
+#include "global.h"
+#include "param.h"
 #include "struct.h"
-#include "chash.c"
-// #include "vc3000.c"
+
+extern int mlt(int x, int y);
+extern int mltn(int n, int x);
 
 unsigned short g[K + 1] = {0};
 
@@ -80,7 +83,6 @@ OP v2o(vec a)
 unsigned short
 oinv(unsigned short a)
 {
-    int i;
 
     if (a == 0)
         return 0;
@@ -141,9 +143,8 @@ void printpol(vec a)
 
 vec kof2(unsigned short c, vec f)
 {
-    int i, j, k;
+    int i,k;
     vec b = {0}, h = {0};
-    OP g = {0};
 
     c = fg[c];
     printf("c=%d\n", c);
@@ -204,7 +205,7 @@ unsigned short gt[K * 2][K * 2] = {0};
 
 void van(int kk)
 {
-    int i, j, k;
+    int i, j;
 
     printf("van der\n");
 
@@ -225,10 +226,10 @@ void van(int kk)
 
 void ogt(unsigned short pp[], int kk)
 {
-    int i, j, k;
-    OP w = {0};
+    int i, j;
 
-#pragma omp parallel for private(i, j)
+
+//#pragma omp parallel for private(i, j)
     for (i = 0; i < kk; i++)
     {
         for (j = 0; j < kk - i; j++)
@@ -264,16 +265,16 @@ OP setpol(unsigned short f[], int n)
 
 OP mkpol()
 {
-    int i, j, k, fail, flg, l, ii = 0;
+    int i, j, k, flg,  ii = 0;
     OP w = {0};
 
     do
     {
-        fail = 0;
+        //fail = 0;
         j = 0;
         k = 0;
         flg = 0;
-        l = 0;
+        //l = 0;
         memset(g, 0, sizeof(g));
         // memset(ta, 0, sizeof(ta));
         memset(w.t, 0, sizeof(w));
@@ -316,7 +317,7 @@ OP mkpol()
 unsigned short
 v2a(oterm a)
 {
-    int i, j;
+    int j;
 
     if (a.a == 0)
         return 0;
@@ -330,11 +331,12 @@ v2a(oterm a)
             return j - 1;
         }
     }
+    return 0;
 }
 
 void printsage(vec a)
 {
-    int i, j, k;
+    int i, j;
     oterm b;
 
     printf("poly=");
@@ -391,8 +393,6 @@ oterm vLT(vec f)
 unsigned short
 equ(unsigned short a, unsigned short b)
 {
-    int i;
-
     return gf[mlt(oinv(a), fg[b])];
 }
 
@@ -516,8 +516,8 @@ int cnty = 0;
 vec vpp(vec f, vec mod)
 {
     int i;
-    vec t = {0}, s = {0};
-    t = f;
+    vec s = {0};
+    //t = f;
     s = f;
 
     // 繰り返し２乗法
@@ -532,8 +532,8 @@ vec vpp(vec f, vec mod)
 // gcd
 vec vgcd(vec xx, vec yy)
 {
-    vec tt = {0}, tmp, h = {0}, ss = {0}, ee = {0};
-    ee.x[K] = 1;
+    vec tt = {0}, tmp, h = {0};
+    //ee.x[K] = 1;
 
     h.x[0] = 1;
     // h.x[0] = 0;
@@ -569,7 +569,6 @@ vec vgcd(vec xx, vec yy)
 int ben_or(vec f)
 {
     int i, n; //, pid;
-    OP uu;
     vec s = {0}, u = {0}, r = {0};
     vec v = {0}; //, ff=o2v(f);
     // if GF(8192) is 2^m and m==13 or if GF(4096) and m==12 if GF(16384) is testing
@@ -662,7 +661,7 @@ void GF_mul(unsigned short *out, unsigned short *in0, unsigned short *in1)
         prod[i - K + 0] ^= prod[i];
 
 
-        /*
+        
            //128
             prod[i - K + 7] ^= prod[i];
             prod[i - K + 2] ^= prod[i];
@@ -753,7 +752,7 @@ int mykey(unsigned short *out, vec x)
 {
     unsigned short mat[K + 1][K] = {0};
     MTX a = {0};
-    int i, j, k;
+    int i, j;
 
     // fill matrix
 
@@ -804,12 +803,12 @@ int mykey(unsigned short *out, vec x)
         printf("%d,", out[i]);
     }
     printf("\n");
-    // exit(1);
+    return 0;
 }
 
 void vv(int kk)
 {
-    int i, j, k;
+    int i, j;
     OP r = mkpol();
     unsigned short tr[N];
     unsigned short ta[N] = {0};
@@ -1038,7 +1037,7 @@ void mkerr(unsigned short *z1, int num)
 
     j = 0;
 
-    memset(z1, 0, sizeof(z1));
+    memset(z1, 0, sizeof(2*N));
 
     while (j < num)
     {
@@ -1056,7 +1055,7 @@ void mkerr(unsigned short *z1, int num)
 OP synd(unsigned short zz[], int kk)
 {
     unsigned short syn[K] = {0}, s = 0;
-    int i, j, t1;
+    int i, j;
     OP f = {0};
 
     printf("in synd2\n");
@@ -1084,10 +1083,10 @@ OP synd(unsigned short zz[], int kk)
 }
 
 // chen探索
-void chen(vec f)
+vec chen(vec f)
 {
-    vec e = {0};
-    int i, count = 0, n, x = 0;
+    vec e={0};
+    int i,n, x = 0,count=0;
     unsigned short z;
 
     n = deg((f));
@@ -1107,7 +1106,7 @@ void chen(vec f)
         }
     }
 
-    // return e;
+     return e;
 }
 
 // Input:符号の次元をKとすると、K個のシンドロームを要素として持つ配列ｓ
@@ -1212,7 +1211,6 @@ vec bms(unsigned short s[], int kk)
     }
 
     k = 0;
-    int count = 0;
     // printpol(o2v(lo[j - 1]));
     // printf(" ==coef\n");
     if (deg((lo[j - 1])) == T)
@@ -1230,9 +1228,9 @@ vec bms(unsigned short s[], int kk)
 
 int main()
 {
-    int i, j;
+    int i;
     unsigned short s[K + 1] = {0}, z1[N] = {0};
-    vec v = {0}, x = {0}, r = {0};
+    vec v = {0}, x = {0};
     OP f = {0};
 
     srand(clock());

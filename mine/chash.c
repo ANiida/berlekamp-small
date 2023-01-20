@@ -4,7 +4,8 @@
 #include <ctype.h>
 #include <string.h>
 
-//#include "global.h"
+#include "global.h"
+
 
 #define str_length 128
 #define password_length 256
@@ -71,7 +72,7 @@ int mlt(int x, int y)
   if (x == 0 || y == 0)
     return 0;
 
-  return ((x + y - 2) % (M - 1)) + 1;
+  return ((x + y - 2) % (N - 1)) + 1;
 }
 
 int mltn(int n, int x)

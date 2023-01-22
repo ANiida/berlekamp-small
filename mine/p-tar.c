@@ -9,7 +9,7 @@
 #include "struct.h"
 // #include "gf.h"
 
-#define SEPARABLE 0
+#define SEPARABLE 1
 
 extern int mlt(int x, int y);
 extern int mltn(int n, int x);
@@ -653,21 +653,15 @@ void GF_mul(unsigned short *out, unsigned short *in0, unsigned short *in1)
             prod[i - K + 2] ^= prod[i];
             prod[i - K + 0] ^= prod[i];
           */
-
+/*
         // GF(2^256) from sage
         prod[i - K + 10] ^= prod[i];
         prod[i - K + 5] ^= prod[i];
         prod[i - K + 2] ^= prod[i];
         prod[i - K + 0] ^= prod[i];
+*/
 
-        /*    //  GF(2^16) sage
-        prod[i - K + 5] ^= prod[i];
-        prod[i - K + 3] ^= prod[i];
-        prod[i - K + 2] ^= prod[i];
-        prod[i - K + 0] ^= prod[i];
-
-
-
+/*
            //128
             prod[i - K + 7] ^= prod[i];
             prod[i - K + 2] ^= prod[i];
@@ -689,13 +683,13 @@ void GF_mul(unsigned short *out, unsigned short *in0, unsigned short *in1)
             prod[i - K + 3] ^= prod[i];
             prod[i - K + 0] ^= prod[i];
         */
-        /*
+        
         //16
             prod[i - K + 5] ^= prod[i];
             prod[i - K + 3] ^= prod[i];
             prod[i - K + 2] ^= prod[i];
             prod[i - K + 0] ^= prod[i];
-        */
+        
     }
 
     for (i = 0; i < K; i++)
@@ -918,8 +912,6 @@ aa:
     if (SEPARABLE == 1)
         r = mkpol();
 
-
-
     for (i = 0; i < N; i++)
     {
         ta[i] = trace(r, i);
@@ -937,15 +929,6 @@ aa:
         // printf("%d,", tr[i]);
     }
 
-    // memset(g, 0, sizeof(g));
-    // g[0] = 1;
-
-    // 多項式を固定したい場合コメントアウトする。
-    // ogt(g, kk);
-
-    // wait();
-
-    // #pragma omp parallel for
 
     printf("\nすげ、オレもうイキそ・・・\n");
     // keygen(g);

@@ -883,12 +883,7 @@ void vv(int kk)
 
     printf("van der\n");
 
-    for (i = 0; i < N; i++)
-    {
-        mat[i][0] = vb[0][i] = 1;
-    }
-    // #pragma omp parallel for private(i, j)
-    for (i = 1; i < kk; i++)
+    for (i = 0; i < kk; i++)
     {
         for (j = 0; j < N; j++)
         {
@@ -918,11 +913,12 @@ aa:
                 //exit(1);
             }
         }
+        r = v2o(tt);
     }
     if (SEPARABLE == 1)
         r = mkpol();
-    if (SEPARABLE == 0)
-        r = v2o(tt);
+
+
 
     for (i = 0; i < N; i++)
     {

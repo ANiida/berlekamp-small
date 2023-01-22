@@ -374,37 +374,6 @@ trace(OP f, unsigned short x)
 }
 
 
-// 多項式の代入値
-unsigned short
-xtrace(OP f, unsigned short x)
-{
-    int i, d;
-    unsigned short u = 0, v = 1;
-
-    d = deg(o2v(f));
-    // printpol(o2v(f));
-    // printf(" =ff\n");
-
-    for (i = 0; i < d + 1; i++)
-    {
-        v = 0;
-        if (f.t[i].a > 0)
-        {
-            v = 1;
-            for (int j = 0; j < f.t[i].n; j++)
-            {
-                v = (v * x);
-            }
-            v = (v * f.t[i].a) % 7;
-
-            // printf("\nv=%d",v);
-        }
-        u = (u + v)%7;
-    }
-    // printf("u=%d\n",u%O);
-
-    return u % 7;
-}
 
 // リーディグタームを抽出(default)
 oterm vLT(vec f)
@@ -834,16 +803,10 @@ vec sol(MTX a)
     vec x={0};
     for (i = 0; i < K/2; i++)
     {
-        x.x[2-i] = a.x[i][K/2];
+        x.x[K/2-i] = a.x[i][K/2];
         //printf(" x%d = %d\n", i, v.x[i]);
     }
-    /*
-    for(i=0;i<K/2;i++){
-        printf("i=%d K/2=%d, %d\n",i,K/2-1-i,v.x[K/2-i-1]);
-        x.x[i+1]=fg[v.x[K/2-1-i]];
-    }
-    */
-    //exit(1);
+
     x.x[0]=1;
 
     OP pol={0};
@@ -1347,9 +1310,9 @@ int main()
     OP f = {0};
 
     srand(clock());
-    // mkg(K);
-     van(K);          // RS-Code generate
-    //vv(K);           // Goppa Code's Parity Check
+    //mkg(K);
+    // van(K);          // RS-Code generate
+    vv(K);           // Goppa Code's Parity Check
     mkerr(z1, T);    // generate error vector
     f = synd(z1, K); // calc syndrome
     x = o2v(f);      // transorm to vec
@@ -1372,14 +1335,6 @@ v.x[K-1-i]=x.x[i];
         printf("%d,",fg[b.x[i][j]]);
         printf("\n");
     }
-    /*
-b.x[0][0]=gf[5];
-b.x[0][1]=gf[3];
-b.x[1][0]=gf[3];
-b.x[1][1]=gf[5];
-b.x[0][2]=gf[5];
-b.x[1][2]=gf[5];
-    */
     sol(b);
     
     for(i=0;i<N;i++)

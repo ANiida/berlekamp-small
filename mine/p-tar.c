@@ -8,7 +8,6 @@
 #include "param.h"
 #include "struct.h"
 
-
 #define SEPARABLE 1
 
 extern int mlt(int x, int y);

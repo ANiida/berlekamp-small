@@ -143,7 +143,7 @@ void printpol(vec a)
 
 vec kof2(unsigned short c, vec f)
 {
-    int i,k;
+    int i, k;
     vec b = {0}, h = {0};
 
     c = fg[c];
@@ -228,8 +228,7 @@ void ogt(unsigned short pp[], int kk)
 {
     int i, j;
 
-
-//#pragma omp parallel for private(i, j)
+    // #pragma omp parallel for private(i, j)
     for (i = 0; i < kk; i++)
     {
         for (j = 0; j < kk - i; j++)
@@ -265,16 +264,16 @@ OP setpol(unsigned short f[], int n)
 
 OP mkpol()
 {
-    int i, j, k, flg,  ii = 0;
+    int i, j, k, flg, ii = 0;
     OP w = {0};
 
     do
     {
-        //fail = 0;
+        // fail = 0;
         j = 0;
         k = 0;
         flg = 0;
-        //l = 0;
+        // l = 0;
         memset(g, 0, sizeof(g));
         // memset(ta, 0, sizeof(ta));
         memset(w.t, 0, sizeof(w));
@@ -517,7 +516,7 @@ vec vpp(vec f, vec mod)
 {
     int i;
     vec s = {0};
-    //t = f;
+    // t = f;
     s = f;
 
     // 繰り返し２乗法
@@ -533,7 +532,7 @@ vec vpp(vec f, vec mod)
 vec vgcd(vec xx, vec yy)
 {
     vec tt = {0}, tmp, h = {0};
-    //ee.x[K] = 1;
+    // ee.x[K] = 1;
 
     h.x[0] = 1;
     // h.x[0] = 0;
@@ -722,7 +721,6 @@ void GF_mul(unsigned short *out, unsigned short *in0, unsigned short *in1)
     for (i = 0; i < K; i++)
         out[i] = prod[i];
 }
-
 
 // #define NN 16
 vec renritu(MTX a)
@@ -1065,7 +1063,7 @@ void mkerr(unsigned short *z1, int num)
 
     j = 0;
 
-    memset(z1, 0, sizeof(2*N));
+    memset(z1, 0, sizeof(2 * N));
 
     while (j < num)
     {
@@ -1113,8 +1111,8 @@ OP synd(unsigned short zz[], int kk)
 // chen探索
 vec chen(vec f)
 {
-    vec e={0};
-    int i,n, x = 0,count=0;
+    vec e = {0};
+    int i, n, x = 0, count = 0;
     unsigned short z;
 
     n = deg((f));
@@ -1134,7 +1132,7 @@ vec chen(vec f)
         }
     }
 
-     return e;
+    return e;
 }
 
 // Input:符号の次元をKとすると、K個のシンドロームを要素として持つ配列ｓ

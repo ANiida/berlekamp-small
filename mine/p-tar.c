@@ -909,7 +909,7 @@ aa:
         }
         r = v2o(tt);
     }
-    
+    //exit(1);
     if (SEPARABLE == 1)
         r = mkpol();
 

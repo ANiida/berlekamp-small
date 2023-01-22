@@ -3,15 +3,16 @@
 #include <stdint.h>
 #include <time.h>
 
-#include "8192.h"
 #include "global.h"
 #include "param.h"
-#include "struct.h"
+#include "ranbada.c"
+#include "8192.h"
 
 #define SEPARABLE 1
 
 extern int mlt(int x, int y);
 extern int mltn(int n, int x);
+extern vec renritu(MTX a);
 
 unsigned short g[K + 1] = {0};
 
@@ -82,8 +83,7 @@ OP v2o(vec a)
 }
 
 // 有限体の元の逆数
-unsigned short
-oinv(unsigned short a)
+unsigned short oinv(unsigned short a)
 {
 
     if (a == 0)
@@ -568,226 +568,6 @@ vec vgcd(vec xx, vec yy)
         return h;
     }
     //  return yy;
-}
-
-// GF(2^m) then set m in this function.
-int ben_or(vec f)
-{
-    int i, n; //, pid;
-    vec s = {0}, u = {0}, r = {0};
-    vec v = {0}; //, ff=o2v(f);
-    // if GF(8192) is 2^m and m==13 or if GF(4096) and m==12 if GF(16384) is testing
-    // int m = E;
-    //  m=12 as a for GF(4096)=2^12 defined @ gloal.h or here,for example m=4 and GF(16)
-
-    v.x[1] = 1;
-    s = (v);
-    // for (i = 0; i < K / 2; i++)
-    r = s;
-    n = deg((f));
-
-    if (vLT(f).n == 0 && vLT(f).a == 1)
-    {
-        printf("f==0\n");
-        exit(1);
-    }
-    if (n == 0)
-        return -1;
-
-    i = 0;
-
-    // r(x)^{q^i} square pow mod
-    for (i = 0; i < K / 2; i++)
-    {
-        printf(":i=%d", i);
-        // irreducible over GH(8192) 2^13
-        r = vpp(r, f);
-        // if(r.x[0]==65535)
-        // return -1;
-        u = vadd(r, (s));
-        u = vgcd(f, u);
-
-        if (deg(u) > 0 || vLT(u).a == 0)
-        {
-            // flg[i]= -1;
-            printf("ae\n");
-            return -1;
-        }
-    }
-
-    return 0;
-}
-
-unsigned short gf_mul(unsigned short in0, unsigned short in1)
-{
-    int i;
-
-    uint32_t tmp;
-    uint32_t t0;
-    uint32_t t1;
-    uint32_t t;
-
-    t0 = in0;
-    t1 = in1;
-
-    tmp = t0 * (t1 & 1);
-
-    for (i = 1; i < 12; i++)
-        tmp ^= (t0 * (t1 & (1 << i)));
-
-    t = tmp & 0x7FC000;
-    tmp ^= t >> 9;
-    tmp ^= t >> 12;
-
-    t = tmp & 0x3000;
-    tmp ^= t >> 9;
-    tmp ^= t >> 12;
-
-    return tmp & ((1 << 12) - 1);
-}
-
-/* input: in0, in1 in GF((2^m)^t)*/
-/* output: out = in0*in1 */
-void GF_mul(unsigned short *out, unsigned short *in0, unsigned short *in1)
-{
-    int i, j;
-
-    unsigned short prod[K * 2 - 1] = {0};
-
-    for (i = 0; i < K * 2 - 1; i++)
-        prod[i] = 0;
-
-    for (i = 0; i < K; i++)
-    {
-        for (j = 0; j < K; j++)
-            prod[i + j] ^= gf[mlt(fg[in0[i]], fg[in1[j]])];
-    }
-    //
-
-    for (i = (K - 1) * 2; i >= K; i--)
-    {
-        if (K == 512)
-        {
-            // GF(2^512) from sage
-            prod[i - K + 8] ^= prod[i];
-            prod[i - K + 5] ^= prod[i];
-            prod[i - K + 2] ^= prod[i];
-            prod[i - K + 0] ^= prod[i];
-        }
-        if (K == 256)
-        {
-            // GF(2^256) from sage
-            prod[i - K + 10] ^= prod[i];
-            prod[i - K + 5] ^= prod[i];
-            prod[i - K + 2] ^= prod[i];
-            prod[i - K + 0] ^= prod[i];
-        }
-        if (K == 128)
-        {
-            // 128
-            prod[i - K + 7] ^= prod[i];
-            prod[i - K + 2] ^= prod[i];
-            prod[i - K + 1] ^= prod[i];
-            prod[i - K + 0] ^= prod[i];
-        }
-        if (K == 32)
-        {
-            // 32
-            prod[i - K + 15] ^= prod[i];
-            prod[i - K + 9] ^= prod[i];
-            prod[i - K + 7] ^= prod[i];
-            prod[i - K + 4] ^= prod[i];
-            prod[i - K + 3] ^= prod[i];
-            prod[i - K + 0] ^= prod[i];
-        }
-        if (K == 16)
-        {
-            // 16
-            prod[i - K + 5] ^= prod[i];
-            prod[i - K + 3] ^= prod[i];
-            prod[i - K + 2] ^= prod[i];
-            prod[i - K + 0] ^= prod[i];
-        }
-        if (K == 8)
-        {
-            // 8
-            prod[i - K + 4] ^= prod[i];
-            prod[i - K + 3] ^= prod[i];
-            prod[i - K + 2] ^= prod[i];
-            prod[i - K + 0] ^= prod[i];
-        }
-        if (K == 4)
-        {
-            // 4
-            prod[i - K + 1] ^= prod[i];
-            prod[i - K + 0] ^= prod[i];
-        }
-    }
-
-    for (i = 0; i < K; i++)
-        out[i] = prod[i];
-}
-
-// #define NN 16
-vec renritu(MTX a)
-{
-    unsigned short p, d;
-    int i, j, k;
-    vec v = {0};
-
-    for (i = 0; i < K; i++)
-    {
-        p = a.x[i][i];
-
-        for (j = 0; j < (K + 1); j++)
-        {
-            a.x[i][j] = gf[mlt(fg[a.x[i][j]], oinv(p))];
-        }
-
-        for (j = 0; j < K; j++)
-        {
-            if (i != j)
-            {
-                d = a.x[j][i];
-
-                for (k = i; k < (K + 1); k++)
-                {
-                    a.x[j][k] = a.x[j][k] ^ gf[mlt(fg[d], fg[a.x[i][k]])];
-                }
-            }
-        }
-    }
-    for (i = 0; i < K; i++)
-    {
-        if (a.x[i][i] != 1)
-        {
-            for (j = 0; j < K + 1; j++)
-                printf("a%d,", a.x[i][j]);
-            printf("\n");
-        }
-    }
-    printf("\n");
-    vec x = {0};
-    for (i = 0; i < K; i++)
-    {
-        v.x[i] = a.x[i][K];
-        // v.x[128]=1;
-        printf(" x%d = %d\n", i, v.x[i]);
-        x.x[i + 1] = v.x[i];
-    }
-    x.x[0] = 1;
-
-    OP pol = {0};
-    pol = setpol(x.x, K + 1);
-    printpol(o2v(pol));
-    printf(" ==key\n");
-    for (i = 0; i < N; i++)
-    {
-        if (trace(pol, i) == 0)
-            printf("%d i=%d\n", i, fg[i] - 1);
-    }
-
-    return v;
 }
 
 // #define NN 16

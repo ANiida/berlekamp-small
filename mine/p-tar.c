@@ -1352,7 +1352,7 @@ int main()
     //vv(K);           // Goppa Code's Parity Check
     //mkerr(z1, T);    // generate error vector
     z1[0]=1;
-    z1[3]=1;
+    z1[2]=1;
     f = synd(z1, K); // calc syndrome
     x = o2v(f);      // transorm to vec
     // r = bma(x.x);    // Berlekamp-Massey Algorithm

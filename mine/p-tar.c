@@ -3,11 +3,11 @@
 #include <stdint.h>
 #include <time.h>
 
-//#include "8192.h"
-#include "gf.h"
+#include "8192.h"
 #include "global.h"
 #include "param.h"
 #include "struct.h"
+//#include "gf.h"
 
 extern int mlt(int x, int y);
 extern int mltn(int n, int x);
@@ -1154,7 +1154,7 @@ void mkerr(unsigned short *z1, int num)
 
     while (j < num)
     {
-        l = rand() % (7);
+        l = rand() % (N-1);
         // printf ("l=%d\n", l);
         if (0 == z1[l] && l > 0)
         {
@@ -1350,9 +1350,7 @@ int main()
     // mkg(K);
      van(K);          // RS-Code generate
     //vv(K);           // Goppa Code's Parity Check
-    //mkerr(z1, T);    // generate error vector
-    z1[0]=1;
-    z1[2]=1;
+    mkerr(z1, T);    // generate error vector
     f = synd(z1, K); // calc syndrome
     x = o2v(f);      // transorm to vec
     // r = bma(x.x);    // Berlekamp-Massey Algorithm

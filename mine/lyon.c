@@ -3,10 +3,8 @@
 #include <stdint.h>
 #include <time.h>
 
-
 #include "global.h"
 #include "param.h"
-#include "8192.h"
 #include "ranbada.c"
 
 extern int mlt(int x, int y);

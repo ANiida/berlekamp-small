@@ -1,6 +1,6 @@
 #include "global.h"
 #include "struct.h"
-
+#include "8192.h"
 
 extern vec renritu(MTX a);
 extern oterm vLT(vec f);

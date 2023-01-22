@@ -1,6 +1,4 @@
 #include <stdint.h>
-//#include "struct.h"
-#include "8192.h"
 #include "ranbada.c"
 
 unsigned short gf_mul(unsigned short in0, unsigned short in1)

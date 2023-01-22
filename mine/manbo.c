@@ -1,5 +1,3 @@
-//#include "struct.h"
-#include "8192.h"
 #include "ranbada.c"
 
 // GF(2^m) then set m in this function.

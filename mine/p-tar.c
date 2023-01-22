@@ -6,7 +6,6 @@
 #include "global.h"
 #include "param.h"
 #include "ranbada.c"
-#include "8192.h"
 
 #define SEPARABLE 1
 

@@ -9,7 +9,7 @@
 #include "struct.h"
 
 
-#define SEPARABLE 1
+#define SEPARABLE 0
 
 extern int mlt(int x, int y);
 extern int mltn(int n, int x);

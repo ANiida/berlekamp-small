@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "global.h"
+
 //#include "8192.h"
 
 unsigned char tmp[N][E * K] = {0};

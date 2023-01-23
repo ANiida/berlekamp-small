@@ -3,15 +3,13 @@
 #include <stdint.h>
 #include <time.h>
 
+#include "8192.h"
 #include "global.h"
 #include "param.h"
-#include "ranbada.c"
-
-#define SEPARABLE 1
+#include "struct.h"
 
 extern int mlt(int x, int y);
 extern int mltn(int n, int x);
-extern vec renritu(MTX a);
 
 unsigned short g[K + 1] = {0};
 
@@ -82,7 +80,8 @@ OP v2o(vec a)
 }
 
 // 有限体の元の逆数
-unsigned short oinv(unsigned short a)
+unsigned short
+oinv(unsigned short a)
 {
 
     if (a == 0)
@@ -209,21 +208,17 @@ void van(int kk)
     int i, j;
 
     printf("van der\n");
-    /*
-    for (i = 0; i < N; i++){
+
+    for (i = 0; i < N; i++)
         mat[i][0] = vb[0][i] = 1;
-        printf("%d,", vb[0][i]);
-    }
-    printf("\n");
-    */
     // #pragma omp parallel for private(i, j)
-    for (i = 0; i < kk; i++)
+    for (i = 1; i < kk; i++)
     {
-        for (j = 1; j < N; j++)
+        for (j = 0; j < N; j++)
         {
-            vb[i][j] = gf[mltn(i + 1, j)];
-            printf("%d,", vb[i][j - 1]);
-            mat[j - 1][i] = vb[i][j - 1];
+            vb[i][j] = gf[mltn(i, j)];
+            printf("%d,", vb[i][j]);
+            mat[j][i] = vb[i][j];
         }
         printf("\n");
     }
@@ -569,62 +564,208 @@ vec vgcd(vec xx, vec yy)
     //  return yy;
 }
 
+// GF(2^m) then set m in this function.
+int ben_or(vec f)
+{
+    int i, n; //, pid;
+    vec s = {0}, u = {0}, r = {0};
+    vec v = {0}; //, ff=o2v(f);
+    // if GF(8192) is 2^m and m==13 or if GF(4096) and m==12 if GF(16384) is testing
+    // int m = E;
+    //  m=12 as a for GF(4096)=2^12 defined @ gloal.h or here,for example m=4 and GF(16)
+
+    v.x[1] = 1;
+    s = (v);
+    // for (i = 0; i < K / 2; i++)
+    r = s;
+    n = deg((f));
+
+    if (vLT(f).n == 0 && vLT(f).a == 1)
+    {
+        printf("f==0\n");
+        exit(1);
+    }
+    if (n == 0)
+        return -1;
+
+    i = 0;
+
+    // r(x)^{q^i} square pow mod
+    for (i = 0; i < K / 2; i++)
+    {
+        printf(":i=%d", i);
+        // irreducible over GH(8192) 2^13
+        r = vpp(r, f);
+        // if(r.x[0]==65535)
+        // return -1;
+        u = vadd(r, (s));
+        u = vgcd(f, u);
+
+        if (deg(u) > 0 || vLT(u).a == 0)
+        {
+            // flg[i]= -1;
+            printf("ae\n");
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+unsigned short gf_mul(unsigned short in0, unsigned short in1)
+{
+    int i;
+
+    uint32_t tmp;
+    uint32_t t0;
+    uint32_t t1;
+    uint32_t t;
+
+    t0 = in0;
+    t1 = in1;
+
+    tmp = t0 * (t1 & 1);
+
+    for (i = 1; i < 12; i++)
+        tmp ^= (t0 * (t1 & (1 << i)));
+
+    t = tmp & 0x7FC000;
+    tmp ^= t >> 9;
+    tmp ^= t >> 12;
+
+    t = tmp & 0x3000;
+    tmp ^= t >> 9;
+    tmp ^= t >> 12;
+
+    return tmp & ((1 << 12) - 1);
+}
+
+/* input: in0, in1 in GF((2^m)^t)*/
+/* output: out = in0*in1 */
+void GF_mul(unsigned short *out, unsigned short *in0, unsigned short *in1)
+{
+    int i, j;
+
+    unsigned short prod[K * 2 - 1] = {0};
+
+    for (i = 0; i < K * 2 - 1; i++)
+        prod[i] = 0;
+
+    for (i = 0; i < K; i++)
+    {
+        for (j = 0; j < K; j++)
+            prod[i + j] ^= gf[mlt(fg[in0[i]], fg[in1[j]])];
+    }
+    //
+
+    for (i = (K - 1) * 2; i >= K; i--)
+    {
+        if (K == 512)
+        {
+            // GF(2^512) from sage
+            prod[i - K + 8] ^= prod[i];
+            prod[i - K + 5] ^= prod[i];
+            prod[i - K + 2] ^= prod[i];
+            prod[i - K + 0] ^= prod[i];
+        }
+        if (K == 256)
+        {
+            // GF(2^256) from sage
+            prod[i - K + 10] ^= prod[i];
+            prod[i - K + 5] ^= prod[i];
+            prod[i - K + 2] ^= prod[i];
+            prod[i - K + 0] ^= prod[i];
+        }
+        if (K == 128)
+        {
+            // 128
+            prod[i - K + 7] ^= prod[i];
+            prod[i - K + 2] ^= prod[i];
+            prod[i - K + 1] ^= prod[i];
+            prod[i - K + 0] ^= prod[i];
+        }
+        if (K == 32)
+        {
+            // 32
+            prod[i - K + 15] ^= prod[i];
+            prod[i - K + 9] ^= prod[i];
+            prod[i - K + 7] ^= prod[i];
+            prod[i - K + 4] ^= prod[i];
+            prod[i - K + 3] ^= prod[i];
+            prod[i - K + 0] ^= prod[i];
+        }
+        if (K == 16)
+        {
+            // 16
+            prod[i - K + 5] ^= prod[i];
+            prod[i - K + 3] ^= prod[i];
+            prod[i - K + 2] ^= prod[i];
+            prod[i - K + 0] ^= prod[i];
+        }
+        if (K == 8)
+        {
+            // 8
+            prod[i - K + 4] ^= prod[i];
+            prod[i - K + 3] ^= prod[i];
+            prod[i - K + 2] ^= prod[i];
+            prod[i - K + 0] ^= prod[i];
+        }
+        if (K == 4)
+        {
+            // 4
+            prod[i - K + 1] ^= prod[i];
+            prod[i - K + 0] ^= prod[i];
+        }
+    }
+
+    for (i = 0; i < K; i++)
+        out[i] = prod[i];
+}
+
 // #define NN 16
-vec sol(MTX a)
+vec renritu(MTX a)
 {
     unsigned short p, d;
     int i, j, k;
     vec v = {0};
 
-    for (i = 0; i < K / 2; i++)
+    for (i = 0; i < K; i++)
     {
         p = a.x[i][i];
 
-        for (j = 0; j < (K / 2 + 1); j++)
+        for (j = 0; j < (K + 1); j++)
         {
             a.x[i][j] = gf[mlt(fg[a.x[i][j]], oinv(p))];
         }
 
-        for (j = 0; j < K / 2; j++)
+        for (j = 0; j < K; j++)
         {
             if (i != j)
             {
                 d = a.x[j][i];
 
-                for (k = i; k < (K / 2 + 1); k++)
+                for (k = i; k < (K + 1); k++)
                 {
                     a.x[j][k] = a.x[j][k] ^ gf[mlt(fg[d], fg[a.x[i][k]])];
                 }
             }
         }
     }
-    for (i = 0; i < K / 2; i++)
+    for (i = 0; i < K; i++)
     {
         if (a.x[i][i] != 1)
-        {
-            for (j = 0; j < K / 2 + 1; j++)
-                printf("a%d,", a.x[i][j]);
-            printf("\n");
-        }
+            // exit(1);
+            for (j = 0; j < K + 1; j++)
+                printf("%d,", a.x[i][j]);
+        printf("\n");
     }
     printf("\n");
-    vec x = {0};
-    for (i = 0; i < K / 2; i++)
-    {
-        x.x[K / 2 - i] = a.x[i][K / 2];
-        // printf(" x%d = %d\n", i, v.x[i]);
-    }
 
-    x.x[0] = 1;
-
-    OP pol = {0};
-    pol = setpol(x.x, K / 2 + 1);
-    printpol(o2v(pol));
-    printf(" ==key\n");
-    for (i = 0; i < N; i++)
+    for (i = 0; i < K; i++)
     {
-        if (trace(pol, i) == 0)
-            printf("%d i=%d\n", i, fg[i]);
+        v.x[i] = a.x[i][K];
+        // v.x[128]=1;
+        printf(" x%d = %d\n", i, v.x[i]);
     }
 
     return v;
@@ -651,7 +792,13 @@ int mykey(unsigned short *out, vec x)
 
     for (j = 2; j <= K; j++)
     {
+        // for(i=0;i<128;i++)
+        // mat[j][i]=gf[mlt(fg[mat[j-1][i]],fg[x.x[i]])];
         GF_mul(mat[j], mat[j - 1], x.x);
+
+        // for(i=0;i<K;i++)
+        // printf("%d,",mat[j][i]);
+        // printf("\n");
     }
     // exit(1);
     //
@@ -669,6 +816,12 @@ int mykey(unsigned short *out, vec x)
 
     vec v = {0};
     v = renritu(a);
+    // printsage(x);
+    // printf("\n");
+    // for(i=0;i<T;i++)
+    // v.x[T-i-1]=x.x[i];
+    // printsage(v);
+    // printf("\n");
 
     for (i = 0; i < K; i++)
     {
@@ -688,42 +841,48 @@ void vv(int kk)
 
     printf("van der\n");
 
-    for (i = 0; i < kk; i++)
+    for (i = 0; i < N; i++)
+    {
+        mat[i][0] = vb[0][i] = 1;
+    }
+    // #pragma omp parallel for private(i, j)
+    for (i = 1; i < kk; i++)
     {
         for (j = 0; j < N; j++)
         {
             vb[i][j] = gf[mltn(i, j)];
+            // printf("%d,", vb[i][j]);
         }
         // printf("\n");
     }
-
     int l = -1;
     vec pp = {0}, tt = {0};
 
 aa:
-    if (SEPARABLE == 0)
-    {
-        while (l < 0)
-        {
-            for (i = 0; i < K; i++)
-                pp.x[i] = rand() % N;
-            mykey(tt.x, pp);
-            tt.x[K] = 1;
-            l = ben_or(tt);
-            if (l == 0)
-            {
-                printf("\n");
-                printsage(tt);
-                printf(" ==irr\n");
-                // exit(1);
-            }
-        }
-        r = v2o(tt);
-    }
-    // exit(1);
-    if (SEPARABLE == 1)
-        r = mkpol();
 
+    while (l < 0)
+    {
+        for (i = 0; i < K; i++)
+            pp.x[i] = rand() % N;
+        mykey(tt.x, pp);
+        tt.x[K] = 1;
+        l = ben_or(tt);
+        if (l == 0)
+        {
+            printf("\n");
+            printsage(tt);
+            printf(" ==irr\n");
+            // exit(1);
+        }
+    }
+    r = v2o(tt);
+    // exit(1);
+    /*
+      while(ll<0){
+          r = mkpol();
+          ll=ben_or(o2v(r));
+      }
+  */
     for (i = 0; i < N; i++)
     {
         ta[i] = trace(r, i);
@@ -740,6 +899,16 @@ aa:
         tr[i] = oinv(ta[i]);
         // printf("%d,", tr[i]);
     }
+
+    // memset(g, 0, sizeof(g));
+    // g[0] = 1;
+
+    // 多項式を固定したい場合コメントアウトする。
+    // ogt(g, kk);
+
+    // wait();
+
+    // #pragma omp parallel for
 
     printf("\nすげ、オレもうイキそ・・・\n");
     // keygen(g);
@@ -763,11 +932,11 @@ aa:
 // Patterson & EEA 用（ランダム多項式、次元指定）
 OP mkg(int kk)
 {
-    int i, j, l, ii = 0;
+    int i, j, k, l, ii = 0;
     OP w = {0};
     unsigned short tr[N] = {0};
     unsigned short ta[N] = {0};
-    unsigned short po[K + 1] = {0}; //{1, 0, 1, 0, 5};
+    unsigned short po[K + 1] = {1, 0, 1, 0, 5};
 
 aa:
 
@@ -782,7 +951,7 @@ aa:
     // while (l == -1)
     {
         w = mkpol();
-        // l = ben_or(o2v(w));
+        l = ben_or(o2v(w));
         printf("irr=%d\n", l);
         if (ii > 300)
         {
@@ -866,7 +1035,7 @@ aa:
         {
             s = 0;
 
-            for (int k = 0; k < K; k++)
+            for (k = 0; k < K; k++)
                 s ^= gf[mlt(fg[gt[k][i]], fg[ma[j][k]])];
             // printf("%d,",s);
             mat[j][i] = s;
@@ -875,16 +1044,16 @@ aa:
     }
     printf("\n");
     // exit(1);
-    /*
-        for (j = 0; j < N; j++)
-        {
-            for (i = 0; i < K; i++)
-                printf("%d,", mat[j][i]);
-            printf("\n");
-        }
+
+    for (j = 0; j < N; j++)
+    {
+        for (i = 0; i < K; i++)
+            printf("%d,", mat[j][i]);
         printf("\n");
-        // wait();
-    */
+    }
+    printf("\n");
+    // wait();
+
     return w;
 }
 
@@ -898,7 +1067,7 @@ void mkerr(unsigned short *z1, int num)
 
     while (j < num)
     {
-        l = rand() % (N - 1);
+        l = rand() % N;
         // printf ("l=%d\n", l);
         if (0 == z1[l] && l > 0)
         {
@@ -922,7 +1091,7 @@ OP synd(unsigned short zz[], int kk)
         syn[i] = 0;
         s = 0;
         // #pragma omp parallel num_threads(16)
-        for (j = 0; j < N; j++)
+        for (j = 0; j < M; j++)
         {
             s ^= gf[mlt(fg[zz[j]], fg[mat[j][i]])];
         }
@@ -1091,43 +1260,13 @@ int main()
     OP f = {0};
 
     srand(clock());
-    // mkg(K); // Goppa Code (EEA type)
-    //  van(K);          // RS-Code generate
-    vv(K);           // Goppa Code's Parity Check (Berlekamp type)
+    // mkg(K);
+    // van(K);          // RS-Code generate
+    vv(K);
     mkerr(z1, T);    // generate error vector
     f = synd(z1, K); // calc syndrome
     x = o2v(f);      // transorm to vec
     // r = bma(x.x);    // Berlekamp-Massey Algorithm
-    MTX b = {0};
-
-    for (i = 0; i < K; i++)
-        v.x[K - 1 - i] = x.x[i];
-
-    for (i = 0; i < K / 2; i++)
-    {
-        for (int j = 0; j < K / 2 + 1; j++)
-        {
-            b.x[i][j] = v.x[i + j];
-            // printf("%d,",b.x[i][i+j]);
-        }
-        // printf("\n");
-    }
-    printf("\n");
-    for (i = 0; i < K / 2; i++)
-    {
-        for (int j = 0; j < K / 2 + 1; j++)
-            printf("%d,", fg[b.x[i][j]]);
-        printf("\n");
-    }
-    sol(b);
-
-    for (i = 0; i < N; i++)
-        if (z1[i] > 0)
-            printf("anaser=%d\n", i);
-    printf("\n");
-
-    exit(1);
-
     for (i = 0; i < K; i++)
         s[i + 1] = x.x[i];
     v = bms(s, K + 1);

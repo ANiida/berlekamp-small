@@ -4,12 +4,10 @@
 #include <time.h>
 
 #include "global.h"
+//#include "struct.h"
 #include "param.h"
 #include "ranbada.c"
-
-extern int mlt(int x, int y);
-extern int mltn(int n, int x);
-extern vec renritu(MTX a);
+//#include "bosanova.c"
 
 
 unsigned short g[K + 1] = {0};
@@ -81,8 +79,7 @@ OP v2o(vec a)
 }
 
 // 有限体の元の逆数
-unsigned short
-oinv(unsigned short a)
+unsigned short oinv(unsigned short a)
 {
 
     if (a == 0)
@@ -201,6 +198,7 @@ vec vmul(vec a, vec b)
     return c;
 }
 
+
 unsigned short vb[K * 2][N] = {0};
 unsigned short gt[K * 2][K * 2] = {0};
 
@@ -209,17 +207,21 @@ void van(int kk)
     int i, j;
 
     printf("van der\n");
-
-    for (i = 0; i < N; i++)
+    /*
+    for (i = 0; i < N; i++){
         mat[i][0] = vb[0][i] = 1;
+        printf("%d,", vb[0][i]);
+    }
+    printf("\n");
+    */
     // #pragma omp parallel for private(i, j)
-    for (i = 1; i < kk; i++)
+    for (i = 0; i < kk; i++)
     {
-        for (j = 0; j < N; j++)
+        for (j = 1; j < N; j++)
         {
-            vb[i][j] = gf[mltn(i, j)];
-            printf("%d,", vb[i][j]);
-            mat[j][i] = vb[i][j];
+            vb[i][j] = gf[mltn(i + 1, j)];
+            printf("%d,", vb[i][j - 1]);
+            mat[j - 1][i] = vb[i][j - 1];
         }
         printf("\n");
     }
@@ -564,6 +566,11 @@ vec vgcd(vec xx, vec yy)
     }
     //  return yy;
 }
+
+
+
+
+
 /* input: f, element in GF((2^m)^t) */
 /* output: out, minimal polynomial of f */
 /* return: 0 for success and -1 for failure */
@@ -624,6 +631,7 @@ int mykey(unsigned short *out, vec x)
     printf("\n");
     return 0;
 }
+
 
 void vv(int kk)
 {

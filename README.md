@@ -1,6 +1,7 @@
 # berlekamp-small
 
 lyon.c：　バーレカンプマッシー復号
+
 p-tar.c:　ピーターソン復号
 
 # 20230123

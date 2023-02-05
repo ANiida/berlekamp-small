@@ -574,8 +574,8 @@ static vec Setvec(int n)
 // chen探索
 static vec chen(OP f)
 {
-    vec e = {0};
-    int n = odeg(f);
+    vec e = {0}, v=o2v(f);
+    int n = deg(v);
     int count = 0;
 
     for (int x = 0; x < G_N; x++)
@@ -584,8 +584,8 @@ static vec chen(OP f)
 
         for (int i = 0; i <= n; i++)
         {
-            if (f.t[i].a > 0)
-                z ^= gf[mlt(mltn(f.t[i].n, fg[x]), fg[f.t[i].a])];
+            if (v.x[i] > 0)
+                z ^= gf[mlt(mltn(i, fg[x]), fg[v.x[i]])];
         }
         if (z == 0)
         {
@@ -711,8 +711,7 @@ static vec b2v(vec v)
 
 // 秘密置換を生成する
 static void Pgen()
-{
-    // CNT++;
+{    // CNT++;
     memset(P, 0, sizeof(P));
     int i, j;
     
@@ -1543,7 +1542,8 @@ int main(void)
     O = mk_pub(); // 鍵サイズ(K/2 Reed-Solomon)
     memset(zz, 0, sizeof(zz));
     for (i = 0; i < G_T; i++)
-        zz[i] = 1;
+        zz[i] = 0;
+    mkerr(zz,G_T);
 
     f = sendrier2(zz, O);
     x = chen(f);

@@ -852,6 +852,92 @@ static OP mkpol() //// mkpol2() との違いは？？
     return w;
 }
 
+void vv(int kk)
+{
+    int i, j;
+    OP r = mkpol();
+    unsigned short tr[G_N];
+    unsigned short ta[G_N] = {0};
+
+    printf("van der\n");
+
+    for (i = 0; i < G_N; i++)
+    {
+        mat[i][0] = vb[0][i] = 1;
+    }
+    // #pragma omp parallel for private(i, j)
+    for (i = 1; i < kk; i++)
+    {
+        for (j = 0; j < G_N; j++)
+        {
+            vb[i][j] = gf[mltn(i, fg[j])];
+            // printf("%d,", vb[i][j]);
+        }
+        // printf("\n");
+    }
+    int l = -1;
+    vec pp = {0}, tt = {0};
+
+aa:
+
+    while (l < 0)
+    {
+        for (i = 0; i < G_K; i++)
+            pp.x[i] = rand() % G_N;
+        mykey(tt.x, pp);
+        tt.x[G_K] = 1;
+        l = ben_or(tt);
+        if (l == 0)
+        {
+            printf("\n");
+            printsage(tt);
+            printf(" ==irr\n");
+            // exit(1);
+        }
+    }
+    r = v2o(tt);
+    // exit(1);
+    /*
+      while(ll<0){
+          r = mkpol();
+          ll=ben_or(o2v(r));
+      }
+  */
+    for (i = 0; i < G_N; i++)
+    {
+        ta[i] = trace(r, i);
+        if (ta[i] == 0)
+        {
+            printf("trace 0 @ %d\n", i);
+            // fail = 1;
+            goto aa;
+        }
+    }
+
+    for (i = 0; i < G_N; i++)
+    {
+        tr[i] = oinv(ta[i]);
+        // printf("%d,", tr[i]);
+    }
+
+    printf("\nすげ、オレもうイキそ・・・\n");
+
+    for (i = 0; i < G_N; i++)
+    {
+        for (j = 0; j < kk; j++)
+        {
+            mat[i][j] = gf[mlt(fg[vb[j][i]], tr[i])];
+        }
+    }
+    for (i = 0; i < G_K; i++)
+    {
+        for (j = 0; j < G_N; j++)
+            printf("%d,", mat[j][i]);
+        printf("\n");
+    }
+}
+
+
 static OP mkd(OP w, int kk)
 {
     int i, j, ii, ll = -1;
@@ -991,8 +1077,9 @@ static MTX mk_pub()
 // Niederreiter暗号の公開鍵を作る(Goppa)
 static MTX pk_gen()
 {
-    OP w = mkd(w, G_K);
+    OP w; //= mkd(w, G_K);
 
+    vv(G_K);
     oprintpol(w);
     printf("\n");
     printsage(o2v(w));

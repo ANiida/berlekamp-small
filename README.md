@@ -9,7 +9,7 @@ p-tar.c:　ピーターソン復号
 
 やっと位置づけがはっきりしてきました。
 
-berlekamp-smallはbm方で復号するリポジトリ。
+berlekamp-smallはbm法で復号するリポジトリ。
 GoppaDecorderはパターソンとユークリッド方の両方で復号するリポジトリ。
 
 もうすぐ完成です。

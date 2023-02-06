@@ -74,16 +74,16 @@ int mlt(int x, int y)
   return ((x + y - 2) % (N - 1)) + 1;
 }
 
-int mltn(int n, int x)
+int mltn2(int n, int x)
 {
   if (n == 0)
     return 1;
   if (n == 1)
     return x;
-  return mlt(x, mltn(n - 1, x));
+  return mlt(x, mltn2(n - 1, x));
 }
 
-int mltn2(int n, int x)
+int mltn(int n, int x)
 {
   int i, j;
 

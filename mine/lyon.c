@@ -11,7 +11,8 @@
 extern int mlt(int x, int y);
 extern int mltn(int n, int x);
 
-unsigned short g[K + 1] = {0};
+unsigned short g[K + 1] = {1, 0, 1, 0, 5};
+//unsigned short g[K + 1] = {1, 1, 3};
 
 // ランダム多項式の生成
 static void
@@ -351,6 +352,21 @@ void printsage(vec a)
     }
 }
 
+unsigned short vtrace(vec f, unsigned short x)
+{
+    int i, d;
+    unsigned short u = 0;
+
+    d = deg(f) + 1;
+    for (i = 0; i < d; i++)
+    {
+        if (f.x[i] > 0)
+            u ^= gf[mlt(fg[f.x[i]], mltn(i, x))];
+    }
+
+return u;
+}
+
 // 多項式の代入値
 unsigned short
 trace(OP f, unsigned short x)
@@ -684,7 +700,8 @@ void GF_mul(unsigned short *out, unsigned short *in0, unsigned short *in1)
             prod[i - K + 1] ^= prod[i];
             prod[i - K + 0] ^= prod[i];
         }
-        if(K==64){
+        if (K == 64)
+        {
             prod[i - K + 33] ^= prod[i];
             prod[i - K + 30] ^= prod[i];
             prod[i - K + 26] ^= prod[i];
@@ -857,7 +874,7 @@ int mykey(unsigned short *out, vec x)
 void vv(int kk)
 {
     int i, j;
-    OP r = mkpol();
+    OP r = setpol(g, K + 1); // mkpol();
     unsigned short tr[N];
     unsigned short ta[N] = {0};
 
@@ -881,33 +898,36 @@ void vv(int kk)
     vec pp = {0}, tt = {0};
 
 aa:
-
-    while (l < 0)
-    {
-        for (i = 0; i < K; i++)
-            pp.x[i] = rand() % N;
-        mykey(tt.x, pp);
-        tt.x[K] = 1;
-        l = ben_or(tt);
-        if (l == 0)
+    
+        while (l < 0)
         {
-            printf("\n");
-            printsage(tt);
-            printf(" ==irr\n");
-            // exit(1);
+            for (i = 0; i < K; i++)
+                pp.x[i] = rand() % N;
+            mykey(tt.x, pp);
+            tt.x[K] = 1;
+            l = ben_or(tt);
+            if (l == 0)
+            {
+                printf("\n");
+                printsage(tt);
+                printf(" ==irr\n");
+                // exit(1);
+            }
         }
-    }
-    r = v2o(tt);
-    // exit(1);
+        r = v2o(tt);
+        // exit(1);
+        
+    //r = setpol(g, K + 1);
     /*
       while(ll<0){
           r = mkpol();
           ll=ben_or(o2v(r));
       }
   */
+    vec v=o2v(r);
     for (i = 0; i < N; i++)
     {
-        ta[i] = trace(r, i);
+        ta[i] = vtrace(v, i);
         if (ta[i] == 0)
         {
             printf("trace 0 @ %d\n", i);
@@ -919,9 +939,10 @@ aa:
     for (i = 0; i < N; i++)
     {
         tr[i] = oinv(ta[i]);
-        // printf("%d,", tr[i]);
+        printf("%d,%d\n", ta[i], tr[i]);
     }
-
+    printf("\n");
+    //exit(1);
     // memset(g, 0, sizeof(g));
     // g[0] = 1;
 
@@ -1284,11 +1305,18 @@ int main()
     srand(clock());
     // mkg(K);
     // van(K);          // RS-Code generate
+    //f = setpol(g, K + 1);
+    //v = o2v(f);
+    //x = vmul_2(v, v);
+    //printpol(x);
+    //printf("\n");
+    // exit(1);
+
     vv(K);
     mkerr(z1, T);    // generate error vector
     f = synd(z1, K); // calc syndrome
     x = o2v(f);      // transorm to vec
-    // r = bma(x.x);    // Berlekamp-Massey Algorithm
+    // v = bma(x.x);    // Berlekamp-Massey Algorithm
     for (i = 0; i < K; i++)
         s[i + 1] = x.x[i];
     v = bms(s, K + 1);

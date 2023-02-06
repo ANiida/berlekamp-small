@@ -389,17 +389,20 @@ static OP opowmod(OP f, OP mod, int n)
     return f;
 }
 
-// 多項式の代入値
-static unsigned short trace(OP f, unsigned short x)
+static unsigned short trace(OP g, unsigned short x)
 {
+    int i, d;
     unsigned short u = 0;
-    int d = deg(o2v(f));
+    vec f=o2v(g);
 
-    for (int i = 0; i < d + 1; i++)
+    d = deg(f) + 1;
+    for (i = 0; i < d; i++)
     {
-        u ^= gf[mlt(fg[f.t[i].a], mltn(f.t[i].n, fg[x]))];
+        if (f.x[i] > 0)
+            u ^= gf[mlt(fg[f.x[i]], mltn(i, x))];
     }
-    return u;
+
+return u;
 }
 
 static unsigned short v2a(oterm a)

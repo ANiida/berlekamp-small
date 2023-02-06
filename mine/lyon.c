@@ -749,6 +749,14 @@ void GF_mul(unsigned short *out, unsigned short *in0, unsigned short *in1)
             prod[i - K + 2] ^= prod[i];
             prod[i - K + 0] ^= prod[i];
         }
+        if (K == 6)
+        {
+            // 8
+            prod[i - K + 4] ^= prod[i];
+            prod[i - K + 3] ^= prod[i];
+            prod[i - K + 1] ^= prod[i];
+            prod[i - K + 0] ^= prod[i];
+        }
         if (K == 4)
         {
             // 4

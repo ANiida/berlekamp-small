@@ -1194,6 +1194,7 @@ vec bma(unsigned short s[]) // sはシンドロームの値
             e ^= gf[mlt(fg[f.x[i]], fg[s[k - i]])];
 
         d[k] = gf[mlt(fg[f.x[i]], fg[s[k - i]])] ^ e;
+        printf("ee=%d %d L=%d f=%d i=%d\n",d[k],e,L,f.x[i],i);
         if (d[k] > 0)
         {
             h = f;
@@ -1212,7 +1213,8 @@ vec bma(unsigned short s[]) // sはシンドロームの値
         }
         k++;
     }
-
+    printpol(f);
+    printf(" ==loc^n");
     return f;
 }
 
@@ -1298,7 +1300,7 @@ vec bms(unsigned short s[], int kk)
 int main()
 {
     int i;
-    unsigned short s[K + 1] = {0}, z1[N] = {0};
+    unsigned short s[K + 1] = {0}, z1[N] = {0},s2[K]={5,3,6,4};
     vec v = {0}, x = {0};
     OP f = {0};
 
@@ -1316,10 +1318,10 @@ int main()
     mkerr(z1, T);    // generate error vector
     f = synd(z1, K); // calc syndrome
     x = o2v(f);      // transorm to vec
-    // v = bma(x.x);    // Berlekamp-Massey Algorithm
-    for (i = 0; i < K; i++)
-        s[i + 1] = x.x[i];
-    v = bms(s, K + 1);
+    v = bma(s2);    // Berlekamp-Massey Algorithm
+    //for (i = 0; i < K; i++)
+    //    s[i + 1] = x.x[i];
+    //v = bms(s, K + 1);
     printf("the errors below\n");
     for (i = 0; i < N; i++)
     {

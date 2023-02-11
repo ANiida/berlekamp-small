@@ -180,12 +180,29 @@ void GF_mul(unsigned short *out, unsigned short *in0, unsigned short *in1)
             prod[i - G_K + 1] ^= prod[i];
             prod[i - G_K + 0] ^= prod[i];
         }
-        /*
-        //x^64+1x^3+1x^1+37x^0
-            prod[i - K + 3] ^= prod[i];
-            prod[i - K + 1] ^= prod[i];
-            prod[i - K + 0] ^= gf_mul(prod[i], (unsigned short) 2);
-        */
+        if(G_K==64){
+           //128
+            prod[i - G_K + 33] ^= prod[i];
+            prod[i - G_K + 30] ^= prod[i];
+            prod[i - G_K + 26] ^= prod[i];
+            prod[i - G_K + 25] ^= prod[i];
+            prod[i - G_K + 24] ^= prod[i];
+            prod[i - G_K + 23] ^= prod[i];
+            prod[i - G_K + 22] ^= prod[i];
+            prod[i - G_K + 21] ^= prod[i];
+            prod[i - G_K + 20] ^= prod[i];
+            prod[i - G_K + 18] ^= prod[i];
+            prod[i - G_K + 13] ^= prod[i];
+            prod[i - G_K + 12] ^= prod[i];
+            prod[i - G_K + 11] ^= prod[i];
+            prod[i - G_K + 10] ^= prod[i];
+            prod[i - G_K + 7] ^= prod[i];
+            prod[i - G_K + 5] ^= prod[i];
+            prod[i - G_K + 4] ^= prod[i];
+            prod[i - G_K + 2] ^= prod[i];
+            prod[i - G_K + 1] ^= prod[i];
+            prod[i - G_K + 0] ^= prod[i];
+        }
         if(G_K==32){
         //32
             prod[i - G_K + 15] ^= prod[i];
@@ -200,6 +217,11 @@ void GF_mul(unsigned short *out, unsigned short *in0, unsigned short *in1)
         prod[i - G_K + 5] ^= prod[i];
         prod[i - G_K + 3] ^= prod[i];
         prod[i - G_K + 2] ^= prod[i];
+        prod[i - G_K + 0] ^= prod[i];
+       }
+       if(G_K==4){
+        // 16
+        prod[i - G_K + 1] ^= prod[i];
         prod[i - G_K + 0] ^= prod[i];
        }
     }

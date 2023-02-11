@@ -54,7 +54,7 @@ int is_reg(MTX cc, MTX *R);
 unsigned short merge_rand(unsigned short *a, int n); /// in fy.c
 
 /* Goppa多項式 */
-static unsigned short g[G_K + 1] = {0}; /// ginit(), ogt(), mkpol(), mkd()
+static unsigned short g[G_K + 1] = {1,0,1,0,5}; /// ginit(), ogt(), mkpol(), mkd()
 
 //// static unsigned int AA = 0; 削除
 //// static unsigned int B = 0;  削除

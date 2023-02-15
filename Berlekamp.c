@@ -42,8 +42,8 @@
 extern unsigned long xor128(void);
 extern int mlt(int x, int y);
 extern int mltn(int n, int a);
-extern vec vmul_2(vec x,vec y);
-extern vec vadd(vec x,vec y);
+extern vec vmul_2(vec x, vec y);
+extern vec vadd(vec x, vec y);
 extern MTX inv_S;
 extern MTX norm_S; /// extern MTX S;
 extern MTX mulmat(MTX A, MTX B, int i);
@@ -55,7 +55,7 @@ int is_reg(MTX cc, MTX *R);
 unsigned short merge_rand(unsigned short *a, int n); /// in fy.c
 
 /* Goppa多項式 */
-static unsigned short g[G_K + 1] = {1,0,1,0,5}; /// ginit(), ogt(), mkpol(), mkd()
+static unsigned short g[G_K + 1] = {1, 0, 1, 0, 5}; /// ginit(), ogt(), mkpol(), mkd()
 
 //// static unsigned int AA = 0; 削除
 //// static unsigned int B = 0;  削除
@@ -394,7 +394,7 @@ static unsigned short trace(OP g, unsigned short x)
 {
     int i, d;
     unsigned short u = 0;
-    vec f=o2v(g);
+    vec f = o2v(g);
 
     d = deg(f) + 1;
     for (i = 0; i < d; i++)
@@ -403,7 +403,7 @@ static unsigned short trace(OP g, unsigned short x)
             u ^= gf[mlt(fg[f.x[i]], mltn(i, x))];
     }
 
-return u;
+    return u;
 }
 
 static unsigned short v2a(oterm a)
@@ -598,7 +598,8 @@ static vec chen(vec f)
             printf("change %d\n", (fg[x]));
         }
     }
-    if(count<G_T){
+    if (count < G_T)
+    {
         printf("few baka\n");
         exit(1);
     }
@@ -608,7 +609,7 @@ static vec chen(vec f)
 // chen探索
 static vec chen2(OP f)
 {
-    vec e = {0}, v=o2v(f);
+    vec e = {0}, v = o2v(f);
     int n = deg(v);
     int count = 0;
 
@@ -745,10 +746,10 @@ static vec b2v(vec v)
 
 // 秘密置換を生成する
 static void Pgen()
-{    // CNT++;
+{ // CNT++;
     memset(P, 0, sizeof(P));
     int i, j;
-    
+
     for (i = 0; i < G_N; i++)
         P[i] = i;
     random_shuffle(P, G_N);
@@ -969,7 +970,6 @@ aa:
         printf("\n");
     }
 }
-
 
 static OP mkd(OP w, int kk)
 {
@@ -1362,7 +1362,6 @@ static vec bfd(unsigned short ss[])
     return o2v(setpol(uk, G_K21));
 }
 
-
 typedef struct
 {
     vec f;
@@ -1416,8 +1415,8 @@ vec bm_itr(unsigned short s[])
                 for (k = 0; k < 2; k++)
                 {
                     U2[1][i][j] = vadd(U2[1][i][j], vmul_2(U1[i][k], U2[0][k][j]));
-                    //printpol(U2[1][0][0]);
-                    //printf(" %d %d %d ==U2\n", i, k, j);
+                    // printpol(U2[1][0][0]);
+                    // printf(" %d %d %d ==U2\n", i, k, j);
                 }
             }
         }
@@ -1434,14 +1433,16 @@ vec bm_itr(unsigned short s[])
     for (i = 0; i < d; i++)
         t.f.x[d - 1 - i] = U2[0][0][0].x[i];
     t.g = U2[0][1][0];
-    vec ff={0};
-    if(deg(t.f)==G_K/2+1){
-        //t.f.x[0]=0;
-        for(i=0;i<G_T;i++)
-        ff.x[i+1]=t.f.x[i];
-        t.f=ff;
+    vec ff = {0};
+    if (deg(t.f) == G_K / 2 + 1)
+    {
+        // t.f.x[0]=0;
+        for (i = 0; i < G_T; i++)
+            ff.x[i + 1] = t.f.x[i];
+        t.f = ff;
     }
-    if(deg(t.f)<G_T){
+    if (deg(t.f) < G_T)
+    {
         printf("few baka\n");
         exit(1);
     }
@@ -1450,9 +1451,6 @@ vec bm_itr(unsigned short s[])
 
     return t.f;
 }
-
-
-
 
 /*
  * Berlekamp-Massey Algorithm
@@ -1622,7 +1620,7 @@ int main(void)
     int i;
     unsigned short zz[G_N] = {0};
     OP f = {0}, r = {0};
-    vec v = {0}, x = {0},z={0};
+    vec v = {0}, x = {0}, z = {0};
     MTX R = {0}, O = {0};
     unsigned short s[G_K + 1] = {0};
     struct timespec ts;
@@ -1640,33 +1638,34 @@ int main(void)
     // 公開鍵を生成する(Niederreiterとは異なる)
     // 鍵サイズ G_K : Goppa Code
     R = pk_gen();
-    int iij=0;
-while(iij<100000){
-    // エラーベクトルの初期化
-    memset(zz, 0, sizeof(zz));
-    // 重み G_T のエラーベクトルを生成する
-    mkerr(zz, G_T);
-    //  暗号文の生成(s=eH)
-    //  x = sin2(zz, R);
-    x = sina(zz, R);
-    // 復号化１(m'=sS^{-1})
-    r = dec(x.x);
-    v = o2v(r);
-    //for (i = 0; i < G_K; i++)
-    //    s[i + 1] = v.x[i];
+    int iij = 0;
+    while (iij < 100000)
+    {
+        // エラーベクトルの初期化
+        memset(zz, 0, sizeof(zz));
+        // 重み G_T のエラーベクトルを生成する
+        mkerr(zz, G_T);
+        //  暗号文の生成(s=eH)
+        //  x = sin2(zz, R);
+        x = sina(zz, R);
+        // 復号化１(m'=sS^{-1})
+        r = dec(x.x);
+        v = o2v(r);
+        // for (i = 0; i < G_K; i++)
+        //     s[i + 1] = v.x[i];
 
-    // Berlekamp-Massey Algorithm
-    //f = bma(s, G_K);
-    z=(bm_itr(v.x));
-    //x=chen2(f);
-    x = chen(z);
-    // 平文の表示(m=m'P^{-1})
-    ero2(x);
-    for (i = 0; i < G_N; i++)
-        if (zz[i] > 0)
-            printf("err=%d\n", i);
-    iij++;
-}
+        // Berlekamp-Massey Algorithm
+        // f = bma(s, G_K);
+        z = (bm_itr(v.x));
+        // x=chen2(f);
+        x = chen(z);
+        // 平文の表示(m=m'P^{-1})
+        ero2(x);
+        for (i = 0; i < G_N; i++)
+            if (zz[i] > 0)
+                printf("err=%d\n", i);
+        iij++;
+    }
     wait();
     exit(1);
 
@@ -1675,7 +1674,7 @@ while(iij<100000){
     memset(zz, 0, sizeof(zz));
     for (i = 0; i < G_T; i++)
         zz[i] = 0;
-    mkerr(zz,G_T);
+    mkerr(zz, G_T);
 
     f = sendrier2(zz, O);
     x = chen2(f);

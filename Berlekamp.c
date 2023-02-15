@@ -1639,25 +1639,19 @@ int main(void)
     // 鍵サイズ G_K : Goppa Code
     R = pk_gen();
     int iij = 0;
-    while (iij < 100000)
+    while (1)
     {
         // エラーベクトルの初期化
         memset(zz, 0, sizeof(zz));
         // 重み G_T のエラーベクトルを生成する
         mkerr(zz, G_T);
         //  暗号文の生成(s=eH)
-        //  x = sin2(zz, R);
         x = sina(zz, R);
         // 復号化１(m'=sS^{-1})
         r = dec(x.x);
         v = o2v(r);
-        // for (i = 0; i < G_K; i++)
-        //     s[i + 1] = v.x[i];
-
         // Berlekamp-Massey Algorithm
-        // f = bma(s, G_K);
         z = (bm_itr(v.x));
-        // x=chen2(f);
         x = chen(z);
         // 平文の表示(m=m'P^{-1})
         ero2(x);
@@ -1665,10 +1659,14 @@ int main(void)
             if (zz[i] > 0)
                 printf("err=%d\n", i);
         iij++;
+        if (iij == 10000)
+            exit(1);
     }
-    wait();
-    exit(1);
 
+return 0;
+}
+
+/*
     // debugging
     O = mk_pub(); // 鍵サイズ(K/2 Reed-Solomon)
     memset(zz, 0, sizeof(zz));
@@ -1698,3 +1696,4 @@ int main(void)
 
     return 0;
 }
+*/

@@ -740,13 +740,13 @@ static void van(int kk)
     for (int i = 0; i < G_N; i++)
         mat[i][0]=vb[0][i] = 1;
 
-    for (int i = 0; i < kk; i++)
+    for (int i = 1; i < kk; i++)
     {
-        for (int j = 1; j < G_N; j++)
+        for (int j = 0; j < G_N; j++)
         {
-            vb[i][j] = gf[mltn(i, fg[j])];
+            vb[i][j] = gf[mltn(i, j)];
             printf("%d,", vb[i][j]);
-            mat[j-1][i]=vb[i][j];
+            mat[j][i]=vb[i][j];
         }
         printf("\n");
     }
@@ -1284,6 +1284,28 @@ static vec bfd(unsigned short ss[])
     return (setpol(uk, G_K21));
 }
 
+vec vmul(vec a, vec b)
+{
+    int i, j, k, l;
+    vec c = {0};
+
+    k = deg(a) + 1;
+    l = deg(b) + 1;
+
+    for (i = 0; i < k; i++)
+    {
+        for (j = 0; j < l; j++)
+            if (a.x[i] > 0)
+            {
+                c.x[i + j] ^= (gf[mlt(fg[a.x[i]], fg[b.x[j]])]);
+                // printf("%d=c ",c.x[i+j]);
+            }
+        // printf("\n");
+    }
+
+    return c;
+}
+
 
 typedef struct
 {
@@ -1291,6 +1313,7 @@ typedef struct
     vec g;
     vec h
 } ymo;
+
 
 vec bm_itr(unsigned short s[])
 {
@@ -1337,7 +1360,7 @@ vec bm_itr(unsigned short s[])
             {
                 for (k = 0; k < 2; k++)
                 {
-                    U2[1][i][j] = vadd(U2[1][i][j], vmul_2(U1[i][k], U2[0][k][j]));
+                    U2[1][i][j] = vadd(U2[1][i][j], vmul(U1[i][k], U2[0][k][j]));
                     // printpol(U2[1][0][0]);
                     // printf(" %d %d %d ==U2\n", i, k, j);
                 }

@@ -1385,17 +1385,16 @@ vec bm_itr(unsigned short s[])
     {
         d = deg(U2[0][0][0]);
         p = 2 * d - m - 1;
-        e = 0;
-        for (i = 0; i < d; i++)
-            e ^= gf[mlt(fg[U2[0][0][0].x[i]], fg[s[i + (m - d)]])];
+        myu = 0;
+        for (i = 0; i <= d; i++)
+            myu ^= gf[mlt(fg[U2[0][0][0].x[i]], fg[s[i + (m - d)]])];
 
-        myu = gf[mlt(fg[U2[0][0][0].x[i]], fg[s[i + (m - d)]])] ^ e; // s[k] ^ e;
         memset(U1, 0, sizeof(U1));
         if (myu == 0 || p >= 0)
         {
             U1[0][0].x[0] = 1;
-            U1[1][0].x[0] = 0;
             U1[0][1].x[p] = myu;
+            U1[1][0].x[0] = 0;
             U1[1][1].x[0] = 1;
         }
         else
@@ -1564,7 +1563,7 @@ static OP bma(unsigned short s[], int kk)
     return lo[j - 1]; // return count;
 }
 
-static OP sendrier2(unsigned short zz[G_N], MTX L)
+static vec sendrier2(unsigned short zz[G_N], MTX L)
 {
     unsigned short s[G_K + 1] = {0}, rt[G_K21] = {0};
     int j;
@@ -1611,7 +1610,7 @@ static OP sendrier2(unsigned short zz[G_N], MTX L)
         s[i + 1] = v.x[i];
 
     printf("rt_deco= ");
-    return bma(s, G_K);
+    return bm_itr(v.x);
 }
 
 // 言わずもがな
@@ -1660,22 +1659,18 @@ int main(void)
                 printf("err=%d\n", i);
         iij++;
         if (iij == 10000)
-            exit(1);
+            break;
     }
-
-return 0;
-}
-
-/*
+    exit(1);
     // debugging
     O = mk_pub(); // 鍵サイズ(K/2 Reed-Solomon)
     memset(zz, 0, sizeof(zz));
     for (i = 0; i < G_T; i++)
         zz[i] = 0;
     mkerr(zz, G_T);
-
-    f = sendrier2(zz, O);
-    x = chen2(f);
+    exit(1);
+    v = sendrier2(zz, O);
+    x = chen(v);
     ero2(x);
     printf("aaa\n");
 
@@ -1693,6 +1688,11 @@ return 0;
         printf("\n");
         exit(1);
     }
+
+return 0;
+}
+
+/*
 
     return 0;
 }

@@ -818,6 +818,7 @@ static void van(int kk)
         {
             vb[i][j] = gf[mltn(i, fg[j])];
             printf("%d,", vb[i][j]);
+            //mat[j-1][i]=vb[i][j];
         }
         printf("\n");
     }

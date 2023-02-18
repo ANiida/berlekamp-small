@@ -40,13 +40,13 @@
  *              テーブルを分けてあります。
  *              sage計算代数ソフトで計算結果が正しいか検証します。
  *              sage[] 配列を使用する場合は、
- *              コマンドラインオプションで "-s" を指定するとsage用の
+ *              コマンドラインオプションで "-opt_s" を指定するとsage用の
  *              有限体を生成することができます。
  *  ****************************************************************/
 // Zech対数の正引き gf と逆引き fg
 static unsigned short gf[MAX_ORD];
 static unsigned short fg[MAX_ORD];
-void gen_gf(int deg, int order, int c)
+void gen_gf(int deg, int order, int opt_sage)
 {
     // #ifdef SAGE
     //  Generate Sagemath based Galois Fields.
@@ -89,10 +89,13 @@ void gen_gf(int deg, int order, int c)
     //  #endif
 
     unsigned short x;
-    if (c == 1)
-        x = normal[deg - 2];
-    else
+    if (opt_sage){
         x = sage[deg - 2];
+        printf("DEBUG: use sage[]\n");
+    } else {
+        x = normal[deg - 2];
+        printf("DEBUG: use normal[]\n");
+    }
 
     /* build gf[] */
     gf[0] = 0;
@@ -158,8 +161,8 @@ void put_gf(int order)
 
 void usage(void)
 {
-    printf("Usage : ./a.out -s 2^i i=2..15.\n");
-    printf("Option -s:sagemath basis,none:normal basis.\n");
+    printf("Usage : ./a.out [option] 4,8,...,32768 i.e. 2^i: i=2..15.\n");
+    printf("Option --sage:sagemath basis,none:normal basis\n");
     exit(1);
 }
 
@@ -205,55 +208,27 @@ int bitsize(int num)
  *              許容する num の範囲は 4(=2^2) から 32768(=2^15) まで.
  *              許容しない値なら、使用法を表示し、exit(1) する.
  *
- * 入力引数   : int num
+ * 入力引数   : int argc,char *argv[],int *k,int *opt_sage
  * 出力引数   : none
- * 戻り値     : 2 ～ 15
+ * 戻り値     : 0 or 1
  *              エラー（許容しない値）の場合、戻り値無し。プロセス終了
  * 入力情報   : none
  * 出力情報   : none
- * 注意事項   :     num         | return value
- *              ----------------+-------------
- *                    2 = 2^1   |   exit(1)
- *                    4 = 2^2   |         2
- *                    8 = 2^3   |         3
- *                    :         |         :
- *                32768 = 2^15  |        15
- *                65536 = 2^16  |   exit(1)
+ * 注意事項   : if opt_sage=0: select normal basis;
+ *              if opt_sage=1: select basis of sagemath
+ *              else exit(1);
  ****************************************************************/
-void opt(int argc, char *argv[], int *k, int *s)
+void opt(int argc, char *argv[], int *k, int *opt_sage)
 {
     *k = atoi(argv[argc - 1]);
     // 2 patterns are acceptable: argc must be 2 or 3.
-    if (argc == 3 && strcmp(argv[1], "-s") == 0)
-        *s = 0; // -s 無し、e.g. $ecole 16
+    if (argc == 3 && strcmp(argv[1], "--sage") == 0)
+        *opt_sage = 1; // --sage 有り、e.g. $ecole --sage 16
     else if (argc == 2)
-        *s = 1; // -s 有り、e.g. $ecole -s 16
+        *opt_sage = 0; // --sage 無し、e.g. $ecole 16
     else // otherwise, error-exit
         usage();
 }
-
-/*
-void opt(int argc, char *argv[], int *k, int *s)
-{
-    // 2 patterns are acceptable: argc must be 2 or 3.
-    if (argc == 2)
-    {
-        // e.g. $ ecole 8192
-        *s = 0; // -s 無し
-        *k = atoi(argv[1]);
-        return;
-    }
-    if (argc == 3 && strcmp(argv[1], "-s") == 0)
-    {
-        // e.g. $ ecole -s 8192
-        *s = 1; // -s 有り
-        *k = atoi(argv[2]);
-        return;
-    }
-    // otherwise, error-exit
-    usage();
-}
-*/
 
 int main(int argc, char *argv[])
 {

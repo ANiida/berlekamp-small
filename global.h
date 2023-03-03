@@ -8,10 +8,10 @@
 
 #if 1
 /// これはちゃんと動く。
-# define G_N    16       // 符号長 (== 256)
-# define G_M    16       // 有限体の元の数 (M <= N)
-# define G_K    4        // 符号の次元
-# define G_E    4         // 拡大体のビット数
+# define G_N    8192       // 符号長 (== 256)
+# define G_M    8192       // 有限体の元の数 (M <= N)
+# define G_K    128        // 符号の次元
+# define G_E    13         // 拡大体のビット数
 #else
 /// ulimit -s unlimited しても、いきなりセグフォ。
 # define G_N   8192       // 符号長

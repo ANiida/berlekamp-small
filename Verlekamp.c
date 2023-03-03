@@ -1583,10 +1583,12 @@ int main(void)
         printf("configuration error! G_K is bigger than G_N\n");
 
     memset(mat, 0, sizeof(mat));
-    van(G_K);
-    //vv(G_K);
-    zz[10]=1;
-    zz[12]=1;
+    //van(G_K);
+    /*
+    vv(G_K);
+    mkerr(zz,G_T);
+    //zz[10]=1;
+    //zz[12]=1;
     v=synd(zz,G_K);
     x=bm_itr(v.x);
     chen(x);
@@ -1594,6 +1596,7 @@ int main(void)
     if(zz[i]>0)
     printf("x=%d\n",i);
     exit(1);
+    */
     // 公開鍵を生成する(Niederreiterとは異なる)
     // 鍵サイズ G_K : Gvecpa Code
     R = pk_gen();
@@ -1618,7 +1621,7 @@ int main(void)
             if (zz[i] > 0)
                 printf("err=%d\n", i);
         iij++;
-        if (iij == 10000)
+        //if (iij == 10000)
             break;
     }
     exit(1);

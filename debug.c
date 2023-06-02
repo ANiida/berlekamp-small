@@ -1,19 +1,21 @@
-/* Obtain a backtrace and print it to stdout. */
 #include <stdio.h>
 #include <stdlib.h>
 #include <execinfo.h>
 
-void print_trace(void)   //// 呼ばれない
+/* Obtain a backtrace and print it to stdout. */
+void print_trace(void)
 {
-    void *array[10];
-    int size = backtrace(array, 10);
-    char ** strings = backtrace_symbols(array, size);
+  void *array[10];
+  char **strings;
+  int size, i;
 
-    if (strings != NULL) {
-        printf("Obtained %d stack frames.\n", size);
-        for (int i = 0; i < size; i++)
-            printf("%s\n", strings[i]);
-    }
-    free(strings);
+  size = backtrace(array, 10);
+  strings = backtrace_symbols(array, size);
+  if (strings != NULL)
+  {
+    printf("Obtained %d stack frames.\n", size);
+    for (i = 0; i < size; i++)
+      printf("%s\n", strings[i]);
+  }
+  free(strings);
 }
-

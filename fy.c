@@ -32,7 +32,7 @@ static void merge1(d_type array[], d_type work[], int left, int mid, int right)
     }
 }
 
-static void insertion_sortA(d_type array[], int right)
+void insertion_sortA(d_type array[G_N], int right)
 {
     if (array[0] > array[1])               // 高速化のため
         SWAP(d_type, array[0], array[1]);
@@ -165,7 +165,7 @@ void merge_rand(unsigned short a[], int n)  /// n = G_N で呼ばれる、不要
     radix_sort(data, 0, G_N - 1, 32);
 
     for (int i = 0; i < G_N; i++) {
-        printf("%d,%d %d\n", i, data[i].ind, data[i].rand);
+        //printf("%d,%d %d\n", i, data[i].ind, data[i].rand);
         a[i] = data[i].ind;
     }
 }

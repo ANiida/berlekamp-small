@@ -1,7 +1,7 @@
 #
 # Makefile in GoppaDecorder/src/Berlekamp/ by rubato6809
 #
-OFILES   = Berlekamp.o chash.o debug.o lu.o sha3.o fy.o inv_mat.o
+OFILES   = Berlekamp.o chash.o debug.o lu.o sha3.o fy.o inv_mat.o vc3000.o
 COPTIONS = -mtune=native -march=native -ffast-math -funroll-loops -fopenmp
 DEBUGOPT = -Wall -g -pg
 OPTIMIZE = -O3
